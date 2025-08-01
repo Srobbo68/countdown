@@ -8,10 +8,16 @@
   <style>
     body {
       display: flex;
+      flex-direction: column;
       font-family: 'Montserrat', sans-serif;
       margin: 0;
       height: 100vh;
       background: #f0f0f0;
+    }
+    .content {
+      flex: 1;
+      display: flex;
+      flex-direction: row;
     }
     .main {
       flex: 1;
@@ -44,38 +50,95 @@
       color: #003366;
       margin-bottom: 20px;
     }
-    #current-time, #countdown, #event-title {
+    #current-time {
       font-size: 36px;
       font-weight: 700;
       color: #003366;
+    }
+    #event-title, #countdown {
+      font-size: 112px;
+      font-weight: 700;
+      color: #003366;
+      word-wrap: break-word;
     }
     .event {
       margin-bottom: 15px;
     }
     .event-title {
       font-weight: bold;
+      font-size: 26px;
+      color: #003366;
     }
     .event-time {
       color: #003366;
-      font-size: 36px;
+      font-size: 26px;
+    }
+    .ticker {
+      height: 60px;
+      background: #003366;
+      color: white;
+      font-size: 28px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      overflow: hidden;
+      position: relative;
+    }
+    .ticker-text {
+      white-space: nowrap;
+      display: flex;
+      align-items: center;
+      gap: 20px;
+      animation: fadeInOut 12s ease-in-out infinite;
+    }
+    @keyframes fadeInOut {
+      0%, 100% { opacity: 0; transform: translateY(100%); }
+      10%, 90% { opacity: 1; transform: translateY(0); }
+    }
+    .ticker img {
+      height: 40px;
+    }
+    @media (max-width: 768px) {
+      .content {
+        flex-direction: column;
+      }
+      .sidebar {
+        width: 100%;
+        border-left: none;
+        border-top: 2px solid #ccc;
+      }
+      #event-title, #countdown {
+        font-size: 56px;
+      }
+      h2 {
+        font-size: 36px;
+      }
     }
   </style>
 </head>
 <body>
-  <div class="main">
-    <div class="section">
-      <h2>Current Time</h2>
-      <div id="current-time">Loading time…</div>
+  <div class="content">
+    <div class="main">
+      <div class="section">
+        <h2>Current Time</h2>
+        <div id="current-time">Loading time…</div>
+      </div>
+      <div class="section">
+        <h2>Next Event</h2>
+        <div id="event-title">Loading event…</div>
+        <div id="countdown">Loading countdown…</div>
+      </div>
     </div>
-    <div class="section">
-      <h2>Next Event</h2>
-      <div id="event-title">Loading event…</div>
-      <div id="countdown">Loading countdown…</div>
+    <div class="sidebar">
+      <h2>Upcoming Events</h2>
+      <div id="event-list">Loading events…</div>
     </div>
   </div>
-  <div class="sidebar">
-    <h2>Upcoming Events</h2>
-    <div id="event-list">Loading events…</div>
+  <div class="ticker">
+    <div class="ticker-text">
+      <img src="nexus-logo.png" alt="Nexus Logo">
+      <span>Connecting Strategy to Peak Motorsport Performance</span>
+    </div>
   </div>
 
   <script>
