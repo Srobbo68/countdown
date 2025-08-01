@@ -140,8 +140,7 @@
         <div id="current-time" class="time">--:--</div>
       </div>
       <div class="panel">
-        <div class="header">Next Event</div>
-        <div id="event-label" class="subtext">Next Event: Loading…</div>
+        <div id="event-label" class="subtext">Loading…</div>
         <div id="countdown" class="time">--:--</div>
       </div>
     </div>
@@ -161,7 +160,6 @@
       </div>
     </div>
   </div>
-
   <script>
     const API_KEY = 'AIzaSyAVtt3Q4Rm-72rjJCTgGSwJvNzgDQ7w6Qs';
     const CALENDAR_ID = 'd8573d58063057003d14a9ead801d83d0bbacf880d6fee3f9f5615e2eeb0433c@group.calendar.google.com';
@@ -181,7 +179,6 @@
 
     function updateEventList() {
       eventListEl.innerHTML = '';
-      const now = new Date();
       const visibleEvents = events.slice(currentEventIndex, currentEventIndex + MAX_EVENTS);
 
       visibleEvents.forEach(ev => {
@@ -214,7 +211,7 @@
 
         const target = isBeforeStart ? start : end;
         const label = isBeforeStart ? "Start" : "End";
-        eventLabelEl.innerText = `Next Event: ${ev.summary}`;
+        eventLabelEl.innerText = `${ev.summary}`;
 
         let diff = target - now;
         const h = Math.floor((diff / (1000 * 60 * 60)) % 24);
