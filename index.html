@@ -211,7 +211,7 @@
 
         const target = isBeforeStart ? start : end;
         const label = isBeforeStart ? "Start" : "End";
-        eventLabelEl.innerText = `${ev.summary}`;
+        eventLabelEl.innerText = `Next Session: ${ev.summary}`;
 
         let diff = target - now;
         const h = Math.floor((diff / (1000 * 60 * 60)) % 24);
