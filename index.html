@@ -90,7 +90,7 @@
       padding-left: 100%;
     }
     .ticker img {
-      height: 90px;
+      height: 60px;
     }
     .ticker span {
       font-size: 36px;
@@ -151,6 +151,7 @@
     const CALENDAR_ID = 'd8573d58063057003d14a9ead801d83d0bbacf880d6fee3f9f5615e2eeb0433c@group.calendar.google.com';
     const MAX_EVENTS = 8;
     let eventsQueue = [];
+    let allEvents = [];
     let countdownInterval;
 
     function updateTime() {
@@ -169,11 +170,12 @@
             singleEvents: true,
             orderBy: 'startTime',
             timeMin: new Date().toISOString(),
-            maxResults: MAX_EVENTS
+            maxResults: 20
           }
         });
       }).then(response => {
-        eventsQueue = response.result.items || [];
+        allEvents = response.result.items || [];
+        eventsQueue = allEvents.slice(0, MAX_EVENTS);
         renderEventList();
         if (eventsQueue.length > 0) startNextCountdown();
       }).catch(err => {
@@ -224,6 +226,8 @@
             clearInterval(countdownInterval);
             eventsQueue.shift();
             removeEventFromList(next.id);
+            refillEventsQueue();
+            renderEventList();
             startNextCountdown();
             return;
           }
@@ -239,6 +243,12 @@
         display += `${secs}s`;
         countdownEl.innerText = display;
       }, 1000);
+    }
+
+    function refillEventsQueue() {
+      const displayedIds = eventsQueue.map(e => e.id);
+      const nextEvent = allEvents.find(e => !displayedIds.includes(e.id) && !eventsQueue.some(q => q.id === e.id));
+      if (nextEvent) eventsQueue.push(nextEvent);
     }
 
     function removeEventFromList(eventId) {
