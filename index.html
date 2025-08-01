@@ -159,99 +159,76 @@
   </div>
 
   <script>
-    const API_KEY = 'YOUR_API_KEY';
-    const CALENDAR_ID = 'YOUR_CALENDAR_ID';
+    const API_KEY = 'AIzaSyAVtt3Q4Rm-72rjJCTgGSwJvNzgDQ7w6Qs';
+    const CALENDAR_ID = 'd8573d58063057003d14a9ead801d83d0bbacf880d6fee3f9f5615e2eeb0433c@group.calendar.google.com';
     const MAX_EVENTS = 8;
+    let events = [], currentEventIndex = 0;
 
     const currentTimeEl = document.getElementById("current-time");
-    const countdownEl = document.getElementById("countdown");
     const eventTitleEl = document.getElementById("event-title");
+    const countdownEl = document.getElementById("countdown");
     const eventListEl = document.getElementById("event-list");
-
-    let events = [];
-    let currentEventIndex = 0;
-    let timerInterval = null;
 
     function updateTime() {
       const now = new Date();
-      const options = { weekday: 'short', hour: '2-digit', minute: '2-digit', second: '2-digit', hour12: false };
-      currentTimeEl.innerText = now.toLocaleString('en-AU', options);
-    }
-
-    setInterval(updateTime, 1000);
-    updateTime();
-
-    function formatCountdown(targetTime) {
-      const now = new Date();
-      const diff = targetTime - now;
-
-      if (diff <= 0) return null;
-
-      const seconds = Math.floor((diff / 1000) % 60);
-      const minutes = Math.floor((diff / 1000 / 60) % 60);
-      const hours = Math.floor((diff / (1000 * 60 * 60)));
-
-      return [
-        hours > 0 ? `${hours}h` : '',
-        minutes > 0 ? `${minutes}m` : '',
-        `${seconds}s`
-      ].filter(Boolean).join(' ');
-    }
-
-    function startCountdown() {
-      if (timerInterval) clearInterval(timerInterval);
-      const event = events[currentEventIndex];
-
-      if (!event) {
-        countdownEl.innerText = '--:--';
-        eventTitleEl.innerText = 'No upcoming events';
-        return;
-      }
-
-      const startTime = new Date(event.start.dateTime);
-      const endTime = new Date(event.end.dateTime);
-      let countingToEnd = false;
-
-      function update() {
-        const now = new Date();
-        if (!countingToEnd && now >= startTime) {
-          countingToEnd = true;
-        }
-        if (countingToEnd && now >= endTime) {
-          currentEventIndex++;
-          startCountdown();
-          updateEventList();
-          return;
-        }
-
-        const label = countingToEnd ? 'End' : 'Start';
-        const time = countingToEnd ? endTime : startTime;
-        const countdownText = formatCountdown(time);
-
-        countdownEl.innerText = countdownText || '--:--';
-        eventTitleEl.innerText = `${label}: ${event.summary}`;
-      }
-
-      update();
-      timerInterval = setInterval(update, 1000);
+      const time = now.toLocaleString('en-AU', { weekday: 'short', hour: '2-digit', minute: '2-digit', second: '2-digit', hour12: false });
+      currentTimeEl.innerText = time;
     }
 
     function updateEventList() {
-      const now = new Date();
       eventListEl.innerHTML = '';
-
+      const now = new Date();
       const visibleEvents = events.slice(currentEventIndex, currentEventIndex + MAX_EVENTS);
 
       visibleEvents.forEach(ev => {
         const start = new Date(ev.start.dateTime);
-        if (start < now) return;
         const dayTime = start.toLocaleString('en-AU', { weekday: 'short', hour: '2-digit', minute: '2-digit', hour12: false });
-
         const div = document.createElement('div');
         div.className = 'event';
         div.innerHTML = `<div class="event-title">${ev.summary}</div><div class="event-time">${dayTime}</div>`;
         eventListEl.appendChild(div);
       });
+    }
+
+    function startCountdown() {
+      function tick() {
+        const now = new Date();
+        if (!events[currentEventIndex]) return;
+        const ev = events[currentEventIndex];
+        const start = new Date(ev.start.dateTime);
+        const end = new Date(ev.end.dateTime);
+
+        const isBeforeStart = now < start;
+        const isDuring = now >= start && now < end;
+        const isAfter = now >= end;
+
+        if (isAfter) {
+          currentEventIndex++;
+          updateEventList();
+          return;
+        }
+
+        const target = isBeforeStart ? start : end;
+        const label = isBeforeStart ? "Start" : "End";
+        eventTitleEl.innerText = `${label}: ${ev.summary}`;
+
+        let diff = target - now;
+        const h = Math.floor((diff / (1000 * 60 * 60)) % 24);
+        const m = Math.floor((diff / (1000 * 60)) % 60);
+        const s = Math.floor((diff / 1000) % 60);
+
+        const parts = [];
+        if (h > 0) parts.push(`${h}h`);
+        if (m > 0 || h > 0) parts.push(`${m}m`);
+        parts.push(`${s}s`);
+
+        countdownEl.innerText = parts.join(' ');
+      }
+
+      setInterval(() => {
+        updateTime();
+        tick();
+      }, 1000);
     }
 
     function loadCalendar() {
@@ -267,24 +244,22 @@
         });
       }).then(response => {
         events = response.result.items.filter(ev => ev.start.dateTime && ev.end.dateTime);
-        currentEventIndex = 0;
         updateEventList();
         startCountdown();
-      }).catch(err => {
-        eventListEl.innerText = 'Error loading events.';
-        console.error(err);
       });
     }
 
     gapi.load('client', loadCalendar);
 
-    // Fade ticker
     const fade1 = document.getElementById('fade1');
     const fade2 = document.getElementById('fade2');
     setInterval(() => {
       fade1.classList.toggle('show');
       fade2.classList.toggle('show');
     }, 10000);
+
+    updateTime();
+    setInterval(updateTime, 1000);
   </script>
 </body>
 </html>
