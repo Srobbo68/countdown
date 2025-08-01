@@ -148,7 +148,7 @@
     function updateTime() {
       const now = new Date();
       document.getElementById("current-time").innerText =
-        now.toLocaleString('en-AU', { timeZone: 'Australia/Brisbane' });
+        now.toLocaleString('en-AU', { timeZone: 'Australia/Brisbane', hour12: false });
     }
     setInterval(updateTime, 1000);
     updateTime();
