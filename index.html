@@ -50,11 +50,14 @@
       color: #003366;
       margin-bottom: 20px;
     }
-    
-  width: 100%;
-  text-align: center;
-  letter-spacing: 0.5px;
-  display: inline-block;
+    #current-time, #event-title, #countdown {
+      font-size: 112px;
+      font-weight: 700;
+      color: #003366;
+      text-align: center;
+      display: inline-block;
+      width: 100%;
+    }
     .event {
       margin-bottom: 15px;
     }
@@ -68,7 +71,7 @@
       font-size: 26px;
     }
     .ticker {
-      height: 60px;
+      height: 100px;
       background: #e0e0e0;
       color: #003366;
       font-size: 28px;
@@ -78,21 +81,21 @@
       overflow: hidden;
       position: relative;
     }
-    .ticker-text {
-      white-space: nowrap;
+    .ticker-content {
       display: flex;
       align-items: center;
-      gap: 20px;
-      animation: fadeInOut 12s ease-in-out infinite;
+      justify-content: center;
+      animation: fadeInOut 10s linear infinite;
     }
     @keyframes fadeInOut {
-      0%, 100% { opacity: 0; transform: translateY(100%); }
-      10%, 90% { opacity: 1; transform: translateY(0); }
+      0%, 100% { opacity: 0; }
+      10%, 40% { opacity: 1; content: url('NPS.png'); }
+      50%, 90% { opacity: 1; content: 'Connecting Strategy to Peak Motorsport Performance'; }
     }
     .ticker img {
-      height: 80px;
+      height: 160px;
       max-height: 100%;
-      display: inline-block;
+      display: block;
     }
     @media (max-width: 768px) {
       .content {
@@ -131,9 +134,9 @@
     </div>
   </div>
   <div class="ticker">
-    <div class="ticker-text">
-      <img src="NPS.png" alt="Nexus Logo">
-      <span>Connecting Strategy to Peak Motorsport Performance</span>
+    <div class="ticker-content" id="ticker">
+      <img src="NPS.png" alt="Nexus Logo" id="ticker-logo">
+      <span id="ticker-message" style="display:none;">Connecting Strategy to Peak Motorsport Performance</span>
     </div>
   </div>
 
@@ -256,7 +259,25 @@
       const interval = setInterval(tick, 1000);
     }
 
-    gapi.load('client', loadCalendar);
+    function cycleTicker() {
+      const logo = document.getElementById("ticker-logo");
+      const message = document.getElementById("ticker-message");
+
+      setInterval(() => {
+        if (logo.style.display !== "none") {
+          logo.style.display = "none";
+          message.style.display = "inline";
+        } else {
+          logo.style.display = "inline";
+          message.style.display = "none";
+        }
+      }, 5000);
+    }
+
+    gapi.load('client', () => {
+      loadCalendar();
+      cycleTicker();
+    });
   </script>
 </body>
 </html>
