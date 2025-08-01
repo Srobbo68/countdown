@@ -75,7 +75,7 @@
     }
     .ticker {
       height: 100px;
-      background: #e0e0e0;
+      background: #d3d3d3;
       color: #003366;
       font-size: 28px;
       display: flex;
@@ -141,6 +141,10 @@
     const CALENDAR_ID = 'd8573d58063057003d14a9ead801d83d0bbacf880d6fee3f9f5615e2eeb0433c@group.calendar.google.com';
     const MAX_EVENTS = 8;
 
+    let countdownInterval;
+    let currentEventIndex = 0;
+    let events = [];
+
     function updateTime() {
       const now = new Date();
       document.getElementById("current-time").innerText =
@@ -161,52 +165,63 @@
           }
         });
       }).then(response => {
-        const events = response.result.items || [];
-        const container = document.getElementById("event-list");
-        container.innerHTML = '';
-
-        if (events.length === 0) {
-          container.innerText = 'No upcoming events.';
-          return;
+        events = response.result.items || [];
+        renderEvents();
+        if (events.length > 0) {
+          updateNextEvent();
         }
-
-        events.forEach((ev, i) => {
-          const title = ev.summary || '(No title)';
-          const startRaw = ev.start.dateTime || ev.start.date;
-          const start = new Date(startRaw);
-          const local = start.toLocaleString('en-AU', { timeZone: 'Australia/Brisbane' });
-
-          const div = document.createElement('div');
-          div.className = 'event';
-          div.innerHTML = `<div class="event-title">${title}</div><div class="event-time">${local}</div>`;
-          container.appendChild(div);
-
-          if (i === 0) {
-            document.getElementById("event-title").innerText = title;
-            startCountdown(start);
-          }
-        });
-      }).catch(err => {
-        console.error('Calendar load error:', err);
-        document.getElementById("event-list").innerText = 'Error loading events.';
       });
     }
 
-    function startCountdown(targetDate) {
-      function tick() {
-        const now = new Date().getTime();
-        const distance = targetDate.getTime() - now;
+    function renderEvents() {
+      const container = document.getElementById("event-list");
+      container.innerHTML = '';
+      events.forEach(ev => {
+        const title = ev.summary || '(No title)';
+        const startRaw = ev.start.dateTime || ev.start.date;
+        const start = new Date(startRaw);
+        const local = start.toLocaleString('en-AU', { timeZone: 'Australia/Brisbane' });
+        const div = document.createElement('div');
+        div.className = 'event';
+        div.innerHTML = `<div class="event-title">${title}</div><div class="event-time">${local}</div>`;
+        container.appendChild(div);
+      });
+    }
 
-        if (distance <= 0) {
-          document.getElementById("countdown").innerText = "0s";
-          clearInterval(interval);
-          return;
+    function updateNextEvent() {
+      if (currentEventIndex >= events.length) return;
+      const ev = events[currentEventIndex];
+      const title = ev.summary || '(No title)';
+      const start = new Date(ev.start.dateTime || ev.start.date);
+      const end = new Date(ev.end.dateTime || ev.end.date);
+
+      document.getElementById("event-title").innerText = title;
+      startCountdown(start, end);
+    }
+
+    function startCountdown(startTime, endTime) {
+      clearInterval(countdownInterval);
+      let countingToEnd = false;
+      countdownInterval = setInterval(() => {
+        const now = new Date();
+        let target = countingToEnd ? endTime : startTime;
+        let diff = target - now;
+
+        if (diff <= 0) {
+          if (!countingToEnd) {
+            countingToEnd = true;
+            return;
+          } else {
+            currentEventIndex++;
+            updateNextEvent();
+            return;
+          }
         }
 
-        const days = Math.floor(distance / (1000 * 60 * 60 * 24));
-        const hours = Math.floor((distance % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
-        const mins = Math.floor((distance % (1000 * 60 * 60)) / (1000 * 60));
-        const secs = Math.floor((distance % (1000 * 60)) / 1000);
+        const days = Math.floor(diff / (1000 * 60 * 60 * 24));
+        const hours = Math.floor((diff % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
+        const mins = Math.floor((diff % (1000 * 60 * 60)) / (1000 * 60));
+        const secs = Math.floor((diff % (1000 * 60)) / 1000);
 
         const parts = [];
         if (days) parts.push(`${days}d`);
@@ -215,9 +230,7 @@
         parts.push(`${secs}s`);
 
         document.getElementById("countdown").innerText = parts.join(' ');
-      }
-      tick();
-      const interval = setInterval(tick, 1000);
+      }, 1000);
     }
 
     function rotateTicker() {
