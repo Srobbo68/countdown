@@ -229,7 +229,11 @@
         const hrs = Math.floor(diff / 3600000);
         const label = countingToEnd ? 'End' : 'Start';
 
-        countdownEl.innerText = `${label}: ${hrs}h ${mins}m ${secs}s`;
+        let display = label + ': ';
+        if (hrs > 0) display += `${hrs}h `;
+        if (mins > 0 || hrs > 0) display += `${mins}m `;
+        display += `${secs}s`;
+        countdownEl.innerText = display;
       }
 
       updateCountdown();
