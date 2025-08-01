@@ -86,7 +86,6 @@
       display: flex;
       align-items: center;
       justify-content: center;
-      animation: fadeContent 10s infinite;
     }
     .fade-item {
       opacity: 0;
@@ -107,14 +106,6 @@
       font-size: 36px;
       font-weight: 700;
       color: #003366;
-    }
-    @keyframes fadeContent {
-      0%, 45% {
-        opacity: 1;
-      }
-      50%, 100% {
-        opacity: 0;
-      }
     }
     @media (max-width: 768px) {
       .time {
@@ -151,7 +142,7 @@
       </div>
     </div>
     <div class="sidebar">
-      <div class="header" style="font-size: 56px;">On Track Events</div>
+      <div class="header">On Track Events</div>
       <div id="event-list"></div>
     </div>
   </div>
@@ -166,14 +157,133 @@
       </div>
     </div>
   </div>
+
   <script>
+    const API_KEY = 'YOUR_API_KEY';
+    const CALENDAR_ID = 'YOUR_CALENDAR_ID';
+    const MAX_EVENTS = 8;
+
+    const currentTimeEl = document.getElementById("current-time");
+    const countdownEl = document.getElementById("countdown");
+    const eventTitleEl = document.getElementById("event-title");
+    const eventListEl = document.getElementById("event-list");
+
+    let events = [];
+    let currentEventIndex = 0;
+    let timerInterval = null;
+
+    function updateTime() {
+      const now = new Date();
+      const options = { weekday: 'short', hour: '2-digit', minute: '2-digit', second: '2-digit', hour12: false };
+      currentTimeEl.innerText = now.toLocaleString('en-AU', options);
+    }
+
+    setInterval(updateTime, 1000);
+    updateTime();
+
+    function formatCountdown(targetTime) {
+      const now = new Date();
+      const diff = targetTime - now;
+
+      if (diff <= 0) return null;
+
+      const seconds = Math.floor((diff / 1000) % 60);
+      const minutes = Math.floor((diff / 1000 / 60) % 60);
+      const hours = Math.floor((diff / (1000 * 60 * 60)));
+
+      return [
+        hours > 0 ? `${hours}h` : '',
+        minutes > 0 ? `${minutes}m` : '',
+        `${seconds}s`
+      ].filter(Boolean).join(' ');
+    }
+
+    function startCountdown() {
+      if (timerInterval) clearInterval(timerInterval);
+      const event = events[currentEventIndex];
+
+      if (!event) {
+        countdownEl.innerText = '--:--';
+        eventTitleEl.innerText = 'No upcoming events';
+        return;
+      }
+
+      const startTime = new Date(event.start.dateTime);
+      const endTime = new Date(event.end.dateTime);
+      let countingToEnd = false;
+
+      function update() {
+        const now = new Date();
+        if (!countingToEnd && now >= startTime) {
+          countingToEnd = true;
+        }
+        if (countingToEnd && now >= endTime) {
+          currentEventIndex++;
+          startCountdown();
+          updateEventList();
+          return;
+        }
+
+        const label = countingToEnd ? 'End' : 'Start';
+        const time = countingToEnd ? endTime : startTime;
+        const countdownText = formatCountdown(time);
+
+        countdownEl.innerText = countdownText || '--:--';
+        eventTitleEl.innerText = `${label}: ${event.summary}`;
+      }
+
+      update();
+      timerInterval = setInterval(update, 1000);
+    }
+
+    function updateEventList() {
+      const now = new Date();
+      eventListEl.innerHTML = '';
+
+      const visibleEvents = events.slice(currentEventIndex, currentEventIndex + MAX_EVENTS);
+
+      visibleEvents.forEach(ev => {
+        const start = new Date(ev.start.dateTime);
+        if (start < now) return;
+        const dayTime = start.toLocaleString('en-AU', { weekday: 'short', hour: '2-digit', minute: '2-digit', hour12: false });
+
+        const div = document.createElement('div');
+        div.className = 'event';
+        div.innerHTML = `<div class="event-title">${ev.summary}</div><div class="event-time">${dayTime}</div>`;
+        eventListEl.appendChild(div);
+      });
+    }
+
+    function loadCalendar() {
+      gapi.client.init({ apiKey: API_KEY }).then(() => {
+        return gapi.client.request({
+          path: `https://www.googleapis.com/calendar/v3/calendars/${encodeURIComponent(CALENDAR_ID)}/events`,
+          params: {
+            singleEvents: true,
+            orderBy: 'startTime',
+            timeMin: new Date().toISOString(),
+            maxResults: 50
+          }
+        });
+      }).then(response => {
+        events = response.result.items.filter(ev => ev.start.dateTime && ev.end.dateTime);
+        currentEventIndex = 0;
+        updateEventList();
+        startCountdown();
+      }).catch(err => {
+        eventListEl.innerText = 'Error loading events.';
+        console.error(err);
+      });
+    }
+
+    gapi.load('client', loadCalendar);
+
+    // Fade ticker
     const fade1 = document.getElementById('fade1');
     const fade2 = document.getElementById('fade2');
-    let fadeState = true;
     setInterval(() => {
       fade1.classList.toggle('show');
       fade2.classList.toggle('show');
-      fadeState = !fadeState;
     }, 10000);
   </script>
 </body>
