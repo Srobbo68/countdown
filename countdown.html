@@ -1,0 +1,171 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>Countdown Clock</title>
+  <script src="https://apis.google.com/js/api.js"></script>
+  <style>
+    body {
+      display: flex;
+      font-family: Arial, sans-serif;
+      margin: 0;
+      height: 100vh;
+      background: #f0f0f0;
+    }
+    .main {
+      flex: 1;
+      text-align: center;
+      padding: 40px;
+      background: #f4f4f4;
+    }
+    .sidebar {
+      width: 320px;
+      background: white;
+      padding: 20px;
+      border-left: 2px solid #ccc;
+      overflow-y: auto;
+    }
+    #current-time {
+      font-size: 24px;
+      margin-bottom: 20px;
+    }
+    #countdown {
+      font-size: 48px;
+      font-weight: bold;
+    }
+    .event {
+      margin-bottom: 15px;
+    }
+    .event-title {
+      font-weight: bold;
+    }
+    .event-time {
+      color: #444;
+      font-size: 14px;
+    }
+  </style>
+</head>
+<body>
+  <div class="main">
+    <h1>Countdown to Next Event</h1>
+    <div id="current-time">Loading time…</div>
+    <div id="countdown">Loading countdown…</div>
+  </div>
+  <div class="sidebar">
+    <h2>Upcoming Events</h2>
+    <div id="event-list">Loading events…</div>
+  </div>
+
+  <script>
+    const API_KEY = 'AIzaSyAVtt3Q4Rm-72rjJCTgGSwJvNzgDQ7w6Qs';
+    const CALENDAR_ID = 'd8573d58063057003d14a9ead801d83d0bbacf880d6fee3f9f5615e2eeb0433c@group.calendar.google.com';
+    const MAX_EVENTS = 8;
+
+    function updateTime() {
+      const now = new Date();
+      document.getElementById("current-time").innerText =
+        now.toLocaleString('en-AU', {
+          timeZone: 'Australia/Brisbane',
+          weekday: 'short',
+          hour: '2-digit',
+          minute: '2-digit',
+          hour12: false
+        });
+    }
+    setInterval(updateTime, 1000);
+    updateTime();
+
+    function loadCalendar() {
+      gapi.client.init({ apiKey: API_KEY }).then(() => {
+        return gapi.client.request({
+          path: `https://www.googleapis.com/calendar/v3/calendars/${encodeURIComponent(CALENDAR_ID)}/events`,
+          params: {
+            singleEvents: true,
+            orderBy: 'startTime',
+            timeMin: new Date().toISOString(),
+            maxResults: MAX_EVENTS
+          }
+        });
+      }).then(response => {
+        const events = response.result.items || [];
+        const container = document.getElementById("event-list");
+        container.innerHTML = '';
+
+        if (events.length === 0) {
+          container.innerText = 'No upcoming events.';
+          return;
+        }
+
+        events.forEach((ev, i) => {
+          const title = ev.summary || '(No title)';
+          const startRaw = ev.start.dateTime || ev.start.date;
+          const endRaw = ev.end.dateTime || ev.end.date;
+          const start = new Date(startRaw);
+          const end = new Date(endRaw);
+
+          const local = start.toLocaleString('en-AU', {
+            timeZone: 'Australia/Brisbane',
+            weekday: 'short',
+            hour: '2-digit',
+            minute: '2-digit',
+            hour12: false
+          });
+
+          const div = document.createElement('div');
+          div.className = 'event';
+          div.innerHTML = `<div class="event-title">${title}</div><div class="event-time">${local}</div>`;
+          container.appendChild(div);
+
+          if (i === 0) startCountdown(start, end, title, events.slice(1));
+        });
+      }).catch(err => {
+        console.error('Calendar load error:', err);
+        document.getElementById("event-list").innerText = 'Error loading events.';
+      });
+    }
+
+    function startCountdown(startTime, endTime, title, remainingEvents) {
+      let mode = 'toStart';
+
+      function tick() {
+        const now = Date.now();
+        let target = mode === 'toStart' ? startTime.getTime() : endTime.getTime();
+        const diff = target - now;
+
+        if (diff <= 0) {
+          if (mode === 'toStart') {
+            mode = 'toEnd';
+            tick();
+          } else {
+            // After end, move to next event if available
+            if (remainingEvents.length > 0) {
+              const nextEvent = remainingEvents[0];
+              const nextStart = new Date(nextEvent.start.dateTime || nextEvent.start.date);
+              const nextEnd = new Date(nextEvent.end.dateTime || nextEvent.end.date);
+              const nextTitle = nextEvent.summary || '(No title)';
+              startCountdown(nextStart, nextEnd, nextTitle, remainingEvents.slice(1));
+            } else {
+              document.getElementById("countdown").innerText = "No more events.";
+            }
+            clearInterval(interval);
+            return;
+          }
+        } else {
+          const days = Math.floor(diff / 86400000);
+          const hours = Math.floor((diff % 86400000) / 3600000);
+          const mins = Math.floor((diff % 3600000) / 60000);
+          const secs = Math.floor((diff % 60000) / 1000);
+          const label = mode === 'toStart' ? `Until ${title} starts:` : `Until ${title} ends:`;
+          document.getElementById("countdown").innerText = `${label} ${days}d ${hours}h ${mins}m ${secs}s`;
+        }
+      }
+
+      tick();
+      const interval = setInterval(tick, 1000);
+    }
+
+    gapi.load('client', loadCalendar);
+  </script>
+</body>
+</html>
