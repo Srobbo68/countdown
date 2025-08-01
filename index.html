@@ -104,6 +104,21 @@
         border-top: 2px solid #ccc;
       }
       #event-title, #countdown, #current-time {
+  font-size: 6vw;
+  white-space: normal;
+  overflow-wrap: break-word;
+  text-align: center;
+}
+      h2 {
+        font-size: 36px;
+      }
+    }
+      .sidebar {
+        width: 100%;
+        border-left: none;
+        border-top: 2px solid #ccc;
+      }
+      #event-title, #countdown, #current-time {
         font-size: 56px;
       }
       h2 {
@@ -176,11 +191,27 @@
     function renderEvents() {
       const container = document.getElementById("event-list");
       container.innerHTML = '';
-      events.forEach(ev => {
+      events.forEach((ev, i) => {
         const title = ev.summary || '(No title)';
         const startRaw = ev.start.dateTime || ev.start.date;
+        const endRaw = ev.end?.dateTime || ev.end?.date;
         const start = new Date(startRaw);
+        const end = new Date(endRaw);
+
+        if (end < new Date()) return; // Skip past events
+
         const local = start.toLocaleString('en-AU', { timeZone: 'Australia/Brisbane', weekday: 'short', hour: '2-digit', minute: '2-digit', hour12: false });
+
+        const div = document.createElement('div');
+        div.className = 'event';
+        div.innerHTML = `<div class="event-title">${title}</div><div class="event-time">${local}</div>`;
+        container.appendChild(div);
+
+        if (!countdownStarted) {
+          startCountdown(start, end, title);
+          countdownStarted = true;
+        }
+      });
         const div = document.createElement('div');
         div.className = 'event';
         div.innerHTML = `<div class="event-title">${title}</div><div class="event-time">${local}</div>`;
