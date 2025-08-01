@@ -39,24 +39,18 @@
       border-left: 2px solid #ccc;
       overflow-y: auto;
     }
-    #current-time {
-      font-size: 36px;
-      font-weight: 700;
+    h2 {
+      font-size: 56px;
       color: #003366;
+      margin-bottom: 20px;
     }
-    #countdown {
-      font-size: 36px;
-      font-weight: 700;
-      color: #003366;
-      line-height: 1.5;
-    }
-    #event-title {
+    #current-time, #countdown, #event-title {
       font-size: 36px;
       font-weight: 700;
       color: #003366;
     }
     .event {
-      margin-bottom: 36px;
+      margin-bottom: 15px;
     }
     .event-title {
       font-weight: bold;
@@ -157,7 +151,7 @@
 
     function startCountdown(startTime, endTime, title, remainingEvents) {
       let mode = 'toStart';
-      document.getElementById("event-title").innerText = `Next Event: ${title}`;
+      document.getElementById("event-title").innerText = `${title}`;
 
       function tick() {
         const now = Date.now();
