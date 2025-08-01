@@ -50,12 +50,7 @@
       color: #003366;
       margin-bottom: 20px;
     }
-    #current-time {
-      font-size: 36px;
-      font-weight: 700;
-      color: #003366;
-    }
-    #event-title, #countdown {
+    #current-time, #event-title, #countdown {
       font-size: 112px;
       font-weight: 700;
       color: #003366;
@@ -97,6 +92,8 @@
     }
     .ticker img {
       height: 40px;
+      max-height: 100%;
+      display: inline-block;
     }
     @media (max-width: 768px) {
       .content {
@@ -107,7 +104,7 @@
         border-left: none;
         border-top: 2px solid #ccc;
       }
-      #event-title, #countdown {
+      #event-title, #countdown, #current-time {
         font-size: 56px;
       }
       h2 {
@@ -136,7 +133,7 @@
   </div>
   <div class="ticker">
     <div class="ticker-text">
-      <img src="nexus-logo.png" alt="Nexus Logo">
+      <img src="NPS.png" alt="Nexus Logo">
       <span>Connecting Strategy to Peak Motorsport Performance</span>
     </div>
   </div>
