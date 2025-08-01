@@ -148,7 +148,7 @@
     function updateTime() {
       const now = new Date();
       document.getElementById("current-time").innerText =
-        now.toLocaleString('en-AU', { timeZone: 'Australia/Brisbane', hour12: false });
+        now.toLocaleString('en-AU', { timeZone: 'Australia/Brisbane', hour12: false, weekday: 'short', hour: '2-digit', minute: '2-digit' });
     }
     setInterval(updateTime, 1000);
     updateTime();
@@ -196,10 +196,10 @@
       const end = new Date(ev.end.dateTime || ev.end.date);
 
       document.getElementById("event-title").innerText = title;
-      startCountdown(start, end);
+      startCountdown(start, end, title);
     }
 
-    function startCountdown(startTime, endTime) {
+    function startCountdown(startTime, endTime, title) {
       clearInterval(countdownInterval);
       let countingToEnd = false;
       countdownInterval = setInterval(() => {
@@ -229,7 +229,8 @@
         if (mins || parts.length) parts.push(`${mins}m`);
         parts.push(`${secs}s`);
 
-        document.getElementById("countdown").innerText = parts.join(' ');
+        const label = countingToEnd ? 'End' : 'Start';
+document.getElementById("countdown").innerText = `${label}: ${parts.join(' ')}`;
       }, 1000);
     }
 
