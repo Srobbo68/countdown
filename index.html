@@ -90,7 +90,7 @@
       padding-left: 100%;
     }
     .ticker img {
-      height: 60px;
+      height: 90px;
     }
     .ticker span {
       font-size: 36px;
@@ -150,6 +150,8 @@
     const API_KEY = 'AIzaSyAVtt3Q4Rm-72rjJCTgGSwJvNzgDQ7w6Qs';
     const CALENDAR_ID = 'd8573d58063057003d14a9ead801d83d0bbacf880d6fee3f9f5615e2eeb0433c@group.calendar.google.com';
     const MAX_EVENTS = 8;
+    let eventsQueue = [];
+    let countdownInterval;
 
     function updateTime() {
       const now = new Date();
@@ -171,73 +173,77 @@
           }
         });
       }).then(response => {
-        const events = response.result.items || [];
-        const container = document.getElementById("event-list");
-        container.innerHTML = '';
-
-        let countdownStarted = false;
-
-        events.forEach((ev, i) => {
-          const title = ev.summary || '(No title)';
-          const startRaw = ev.start.dateTime || ev.start.date;
-          const endRaw = ev.end?.dateTime || ev.end?.date;
-          const start = new Date(startRaw);
-          const end = new Date(endRaw);
-
-          const local = start.toLocaleString('en-AU', { timeZone: 'Australia/Brisbane', weekday: 'short', hour: '2-digit', minute: '2-digit', hour12: false });
-
-          const div = document.createElement('div');
-          div.className = 'event';
-          div.innerHTML = `<div class="event-title">${title}</div><div class="event-time">${local}</div>`;
-          container.appendChild(div);
-
-          if (!countdownStarted) {
-            startCountdown(start, end, title);
-            countdownStarted = true;
-          }
-        });
+        eventsQueue = response.result.items || [];
+        renderEventList();
+        if (eventsQueue.length > 0) startNextCountdown();
       }).catch(err => {
         document.getElementById("event-list").innerText = 'Error loading events.';
         console.error(err);
       });
     }
 
-    function startCountdown(startTime, endTime, title) {
-      const countdownEl = document.getElementById("countdown");
+    function renderEventList() {
+      const container = document.getElementById("event-list");
+      container.innerHTML = '';
+      eventsQueue.forEach(ev => {
+        const title = ev.summary || '(No title)';
+        const start = new Date(ev.start.dateTime || ev.start.date);
+        const local = start.toLocaleString('en-AU', { timeZone: 'Australia/Brisbane', weekday: 'short', hour: '2-digit', minute: '2-digit', hour12: false });
+
+        const div = document.createElement('div');
+        div.className = 'event';
+        div.setAttribute('data-id', ev.id);
+        div.innerHTML = `<div class="event-title">${title}</div><div class="event-time">${local}</div>`;
+        container.appendChild(div);
+      });
+    }
+
+    function startNextCountdown() {
+      if (eventsQueue.length === 0) return;
+      const next = eventsQueue[0];
       const titleEl = document.getElementById("event-title");
+      const countdownEl = document.getElementById("countdown");
+      const startTime = new Date(next.start.dateTime || next.start.date);
+      const endTime = new Date(next.end.dateTime || next.end.date);
+      const title = next.summary || '(No title)';
 
       titleEl.innerText = title;
-
       let countingToEnd = false;
-      function updateCountdown() {
-        const now = Date.now();
+
+      clearInterval(countdownInterval);
+      countdownInterval = setInterval(() => {
+        const now = new Date().getTime();
         const target = countingToEnd ? endTime.getTime() : startTime.getTime();
         const diff = target - now;
 
         if (diff <= 0) {
           if (!countingToEnd) {
             countingToEnd = true;
+            return;
           } else {
-            clearInterval(interval);
-            countdownEl.innerText = '--:--';
+            clearInterval(countdownInterval);
+            eventsQueue.shift();
+            removeEventFromList(next.id);
+            startNextCountdown();
             return;
           }
         }
 
+        const hrs = Math.floor(diff / 3600000);
         const mins = Math.floor((diff % 3600000) / 60000);
         const secs = Math.floor((diff % 60000) / 1000);
-        const hrs = Math.floor(diff / 3600000);
-        const label = countingToEnd ? 'End' : 'Start';
 
-        let display = label + ': ';
+        let display = (countingToEnd ? 'End' : 'Start') + ': ';
         if (hrs > 0) display += `${hrs}h `;
         if (mins > 0 || hrs > 0) display += `${mins}m `;
         display += `${secs}s`;
         countdownEl.innerText = display;
-      }
+      }, 1000);
+    }
 
-      updateCountdown();
-      const interval = setInterval(updateCountdown, 1000);
+    function removeEventFromList(eventId) {
+      const el = document.querySelector(`[data-id="${eventId}"]`);
+      if (el) el.remove();
     }
 
     gapi.load('client', loadCalendar);
