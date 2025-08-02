@@ -13,176 +13,239 @@
       display: flex;
       flex-direction: column;
       height: 100vh;
-      overflow: hidden;
     }
-
-    .main {
-      display: flex;
-      flex: 1;
-      padding: 20px;
-    }
-
-    .left, .right {
-      flex: 1;
+    .header-boxes {
       display: flex;
       flex-direction: column;
-      align-items: center;
-      justify-content: center;
       padding: 20px;
-      box-sizing: border-box;
+      text-align: center;
     }
-
-    .right {
-      border-left: 2px solid #ccc;
-      background: white;
+    .time-box {
+      margin-bottom: 30px;
     }
-
+    .time-box h2 {
+      font-size: 36px;
+      color: #005598;
+      margin-bottom: 10px;
+    }
+    .time-box .time-text, .time-box .event-title {
+      font-size: 72px;
+      font-weight: bold;
+      color: #000;
+      min-width: 12ch;
+      display: inline-block;
+    }
+    .event-title {
+      color: #005598;
+    }
+    .event-timer-label {
+      font-size: 36px;
+      color: #005598;
+      margin-top: 10px;
+    }
+    .main-container {
+      display: flex;
+      flex: 1;
+      overflow: hidden;
+    }
     .sidebar {
-      width: 300px;
+      width: 360px;
       background: white;
       padding: 20px;
       border-left: 2px solid #ccc;
       overflow-y: auto;
     }
-
-    h2 {
+    .sidebar h2 {
       font-size: 36px;
       color: #005598;
-      margin-bottom: 20px;
+      margin-top: 0;
     }
-
-    .time, .countdown, .label {
-      font-size: 72px;
-      color: #005598;
-      white-space: nowrap;
-    }
-
-    .label {
-      font-size: 36px;
-    }
-
     .event {
       margin-bottom: 15px;
     }
-
-    .event-title {
-      font-weight: bold;
+    .event .event-title {
       font-size: 26px;
+      font-weight: bold;
       color: #005598;
     }
-
-    .event-time {
+    .event .event-time {
       font-size: 26px;
       color: #333;
     }
-
-    .buttons {
+    .filter-buttons {
       display: flex;
-      justify-content: center;
-      margin-bottom: 10px;
+      gap: 10px;
+      margin-bottom: 20px;
+      flex-wrap: wrap;
     }
-
-    .buttons button {
-      margin: 0 5px;
-      padding: 5px 15px;
+    .filter-buttons button {
+      flex: 1;
+      padding: 8px 12px;
       font-size: 16px;
+      background-color: #eee;
+      border: 1px solid #ccc;
       cursor: pointer;
-      border: none;
-      background-color: #ccc;
-      color: #333;
-      border-radius: 4px;
     }
-
-    .buttons button.active {
+    .filter-buttons button.active {
       background-color: #005598;
       color: white;
+      font-weight: bold;
     }
-
     .ticker {
-      height: 50px;
-      background: #e0e0e0;
-      color: #005598;
+      height: 60px;
+      background: #ddd;
       display: flex;
       align-items: center;
       justify-content: center;
-      font-size: 24px;
       overflow: hidden;
       position: relative;
     }
-
-    .ticker-content {
-      display: flex;
-      align-items: center;
-      animation: fadeTicker 10s linear infinite;
-    }
-
     .ticker img {
-      height: 40px;
-      margin-right: 10px;
+      height: 50px;
+      margin-right: 20px;
+      opacity: 0;
+      animation: fadeInOut 10s linear infinite;
     }
-
-    @keyframes fadeTicker {
-      0%   { opacity: 0; content: ""; }
-      10%  { opacity: 1; content: ""; }
-      40%  { opacity: 1; }
-      50%  { opacity: 0; }
-      60%  { opacity: 1; content: ""; }
+    .ticker span {
+      font-size: 24px;
+      color: #005598;
+      white-space: nowrap;
+      opacity: 0;
+      animation: fadeInOutText 10s linear infinite;
+    }
+    @keyframes fadeInOut {
+      0% { opacity: 1; }
+      30% { opacity: 1; }
+      50% { opacity: 0; }
+      100% { opacity: 0; }
+    }
+    @keyframes fadeInOutText {
+      0% { opacity: 0; }
+      30% { opacity: 0; }
+      50% { opacity: 1; }
       100% { opacity: 1; }
     }
   </style>
 </head>
 <body>
-  <div class="main">
-    <div class="left">
+  <div class="header-boxes">
+    <div class="time-box">
       <h2>Current Time</h2>
-      <div class="time" id="current-time">--:--:--</div>
+      <div id="current-time" class="time-text">--:--:--</div>
     </div>
-    <div class="right">
+    <div class="time-box">
       <h2>Next Session</h2>
-      <div class="label" id="next-title">Next Session: -</div>
-      <div class="countdown" id="countdown">--:--</div>
+      <div id="next-session-title" class="event-title"></div>
+      <div id="next-session-label" class="event-timer-label"></div>
+      <div id="countdown" class="time-text">--:--:--</div>
     </div>
+  </div>
+
+  <div class="main-container">
     <div class="sidebar">
       <h2>Events</h2>
-      <div class="buttons">
-        <button data-tag="all" class="active">All</button>
-        <button data-tag="G">G</button>
-        <button data-tag="D">D</button>
-        <button data-tag="M">M</button>
+      <div class="filter-buttons">
+        <button onclick="setFilter('all')" id="btn-all">All</button>
+        <button onclick="setFilter('G')" id="btn-G">Garage</button>
+        <button onclick="setFilter('D')" id="btn-D">Driver</button>
+        <button onclick="setFilter('M')" id="btn-M">Media</button>
       </div>
-      <div id="event-list">Loading events…</div>
+      <div id="event-list">Loading events...</div>
     </div>
   </div>
 
   <div class="ticker">
-    <div class="ticker-content">
-      <img src="NPS.png" alt="Nexus Logo" />
-      <span>Nexus Performance Solutions – Connecting Strategy to Peak Motorsport Performance</span>
-    </div>
+    <img src="NPS.png" alt="Nexus Logo" />
+    <span>Connecting Strategy to Peak Motorsport Performance</span>
   </div>
 
   <script>
     const API_KEY = 'AIzaSyAVtt3Q4Rm-72rjJCTgGSwJvNzgDQ7w6Qs';
     const CALENDAR_ID = 'd8573d58063057003d14a9ead801d83d0bbacf880d6fee3f9f5615e2eeb0433c@group.calendar.google.com';
+    let events = [];
+    let filter = 'all';
 
-    const buttons = document.querySelectorAll('.buttons button');
-    let activeTag = 'all';
-
-    buttons.forEach(btn => {
-      btn.addEventListener('click', () => {
-        buttons.forEach(b => b.classList.remove('active'));
-        btn.classList.add('active');
-        activeTag = btn.dataset.tag;
-        loadCalendar();
-      });
-    });
+    function setFilter(f) {
+      filter = f;
+      document.querySelectorAll('.filter-buttons button').forEach(btn => btn.classList.remove('active'));
+      document.getElementById(`btn-${f}`).classList.add('active');
+      renderEvents();
+    }
 
     function updateTime() {
       const now = new Date();
-      document.getElementById("current-time").innerText = now.toLocaleTimeString('en-AU', { timeZone: 'Australia/Brisbane', hour12: false });
+      const options = { weekday: 'short', hour: '2-digit', minute: '2-digit', second: '2-digit', hour12: false };
+      document.getElementById("current-time").innerText = now.toLocaleString('en-AU', options);
     }
-    setInterval(updateTime, 1000);
-    updateTime();
+
+    function renderEvents() {
+      const list = document.getElementById("event-list");
+      list.innerHTML = '';
+      const now = new Date();
+      const futureEvents = events.filter(ev => new Date(ev.start.dateTime) > now);
+      const visibleEvents = futureEvents.filter(ev => {
+        if (filter === 'all') return true;
+        return ev.summary.startsWith(filter + ' ');
+      }).slice(0, 8);
+
+      visibleEvents.forEach(ev => {
+        const title = ev.summary.replace(/^[GDM] /, '');
+        const date = new Date(ev.start.dateTime);
+        const timeStr = date.toLocaleString('en-AU', { weekday: 'short', hour: '2-digit', minute: '2-digit', hour12: false });
+        const div = document.createElement('div');
+        div.className = 'event';
+        div.innerHTML = `<div class="event-title">${title}</div><div class="event-time">${timeStr}</div>`;
+        list.appendChild(div);
+      });
+    }
+
+    function startCountdown() {
+      const now = new Date();
+      const future = events.filter(ev => new Date(ev.end.dateTime) > now);
+      if (future.length === 0) return;
+
+      const next = future[0];
+      const title = next.summary.replace(/^[GDM] /, '');
+      const start = new Date(next.start.dateTime);
+      const end = new Date(next.end.dateTime);
+
+      document.getElementById("next-session-title").innerText = `Next Session: ${title}`;
+
+      let mode = 'start';
+
+      function updateCountdown() {
+        const now = new Date();
+        const target = mode === 'start' ? start : end;
+        let diff = target - now;
+
+        if (diff <= 0) {
+          if (mode === 'start') {
+            mode = 'end';
+            document.getElementById("next-session-label").innerText = `End:`;
+            return;
+          } else {
+            startCountdown();
+            return;
+          }
+        } else {
+          document.getElementById("next-session-label").innerText = mode === 'start' ? `Start:` : `End:`;
+        }
+
+        const hours = Math.floor(diff / 3600000);
+        const mins = Math.floor((diff % 3600000) / 60000);
+        const secs = Math.floor((diff % 60000) / 1000);
+
+        let timeStr = '';
+        if (hours > 0) timeStr += `${hours}h `;
+        if (mins > 0 || hours > 0) timeStr += `${mins}m `;
+        timeStr += `${secs}s`;
+
+        document.getElementById("countdown").innerText = timeStr;
+      }
+
+      updateCountdown();
+      setInterval(updateCountdown, 1000);
+    }
 
     function loadCalendar() {
       gapi.client.init({ apiKey: API_KEY }).then(() => {
@@ -196,69 +259,15 @@
           }
         });
       }).then(response => {
-        const events = response.result.items || [];
-        const filtered = activeTag === 'all' ? events : events.filter(ev => ev.summary?.startsWith(activeTag + ' '));
-
-        const list = document.getElementById("event-list");
-        list.innerHTML = '';
-
-        filtered.slice(0, 8).forEach(ev => {
-          const start = new Date(ev.start.dateTime || ev.start.date);
-          const timeStr = start.toLocaleString('en-AU', { timeZone: 'Australia/Brisbane', weekday: 'short', hour: '2-digit', minute: '2-digit', hour12: false });
-          const div = document.createElement('div');
-          div.className = 'event';
-          div.innerHTML = `<div class="event-title">${ev.summary}</div><div class="event-time">${timeStr}</div>`;
-          list.appendChild(div);
-        });
-
-        if (filtered.length) startCountdownChain(filtered);
+        events = response.result.items;
+        renderEvents();
+        startCountdown();
       });
     }
 
-    function startCountdownChain(events) {
-      const now = new Date();
-      const next = events.find(e => new Date(e.end?.dateTime || e.end?.date) > now);
-      if (!next) return;
-
-      const title = next.summary;
-      const start = new Date(next.start.dateTime || next.start.date);
-      const end = new Date(next.end.dateTime || next.end.date);
-      const nowTime = new Date();
-      const label = document.getElementById("next-title");
-      const countdown = document.getElementById("countdown");
-
-      function update() {
-        const current = new Date();
-        let target, mode;
-        if (current < start) {
-          target = start;
-          mode = 'Start';
-        } else if (current < end) {
-          target = end;
-          mode = 'End';
-        } else {
-          loadCalendar();
-          return;
-        }
-
-        const diff = target - current;
-        const h = Math.floor(diff / 3600000);
-        const m = Math.floor((diff % 3600000) / 60000);
-        const s = Math.floor((diff % 60000) / 1000);
-
-        const hStr = h > 0 ? `${h}h ` : '';
-        const mStr = m > 0 || h > 0 ? `${m}m ` : '';
-        const sStr = `${s}s`;
-
-        label.innerText = `Next Session: ${title}`;
-        countdown.innerText = `${mode}: ${hStr}${mStr}${sStr}`;
-      }
-
-      update();
-      setInterval(update, 1000);
-    }
-
     gapi.load('client', loadCalendar);
+    setInterval(updateTime, 1000);
+    updateTime();
   </script>
 </body>
 </html>
