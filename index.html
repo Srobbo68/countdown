@@ -4,188 +4,242 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Nexus Countdown</title>
-  <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;700&display=swap" rel="stylesheet" />
+  <script src="https://apis.google.com/js/api.js"></script>
   <style>
     body {
       margin: 0;
       font-family: 'Montserrat', sans-serif;
+      display: flex;
+      flex-direction: column;
+      height: 100vh;
       background-color: #f4f4f4;
+      overflow: hidden;
+    }
+    .top-section {
       display: flex;
       flex-direction: column;
       align-items: center;
       justify-content: flex-start;
+      padding: 20px;
+      flex: 0 0 auto;
     }
-
-    .header {
-      text-align: center;
-      margin-top: 10px;
-    }
-
-    .time-container {
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      width: 100%;
-      max-width: 900px;
-    }
-
     .time-box {
-      background: white;
-      border: 2px solid #0057B7;
-      border-radius: 10px;
-      padding: 20px;
-      margin: 10px;
+      background-color: white;
       width: 90%;
+      max-width: 800px;
       text-align: center;
-    }
-
-    .time-box h2 {
-      font-size: 36px;
-      margin-bottom: 10px;
-      color: #0057B7;
-    }
-
-    .time-box p {
-      font-size: 72px;
-      margin: 0;
-      color: #0057B7;
-      letter-spacing: 2px;
-      min-height: 90px;
-    }
-
-    .events-container {
-      position: absolute;
-      right: 10px;
-      top: 10px;
-      width: 300px;
-      background: white;
-      border: 2px solid #0057B7;
-      border-radius: 10px;
       padding: 20px;
-      max-height: 90vh;
+      margin-bottom: 20px;
+      border-radius: 10px;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+    }
+    .time-header {
+      font-size: 36px;
+      color: #003087;
+      margin-bottom: 10px;
+    }
+    .time-value {
+      font-size: 72px;
+      color: #003087;
+      font-variant-numeric: tabular-nums;
+    }
+    .event-label {
+      font-size: 36px;
+      color: #003087;
+      margin-top: 20px;
+    }
+    .event-time {
+      font-size: 48px;
+      color: #003087;
+      font-variant-numeric: tabular-nums;
+    }
+    .main-container {
+      flex: 1;
+      display: flex;
+      flex-direction: row;
+      overflow: hidden;
+    }
+    .events-sidebar {
+      width: 350px;
+      background: white;
+      border-left: 2px solid #ccc;
+      padding: 20px;
       overflow-y: auto;
     }
-
-    .events-container h2 {
+    .events-header {
       font-size: 36px;
-      color: #0057B7;
-      text-align: center;
+      font-weight: bold;
+      color: #003087;
+      margin-bottom: 10px;
     }
-
+    .button-group {
+      margin-bottom: 10px;
+    }
+    .filter-btn {
+      padding: 6px 12px;
+      margin: 4px;
+      border: none;
+      background-color: #eee;
+      cursor: pointer;
+      font-size: 16px;
+    }
+    .filter-btn.active {
+      background-color: #003087;
+      color: white;
+    }
     .event {
       margin-bottom: 15px;
     }
-
     .event-title {
       font-size: 26px;
-      color: #0057B7;
+      color: #003087;
       font-weight: bold;
     }
-
-    .event-time {
+    .event-start {
       font-size: 26px;
-      color: #333;
+      color: #003087;
     }
-
-    .buttons {
-      text-align: center;
-      margin-top: 10px;
-    }
-
-    .buttons button {
-      margin: 5px;
-      padding: 10px 20px;
-      font-size: 16px;
-      border: 2px solid #0057B7;
-      background: white;
-      color: #0057B7;
-      cursor: pointer;
-    }
-
-    .buttons button.active {
-      background: #0057B7;
-      color: white;
-    }
-
     .ticker {
-      position: fixed;
-      bottom: 0;
-      width: 100%;
-      height: 60px;
-      background: #ddd;
-      display: flex;
-      align-items: center;
-      justify-content: center;
+      background-color: #ddd;
+      color: #003087;
       font-size: 24px;
+      padding: 10px;
       overflow: hidden;
+      text-align: center;
+      position: relative;
     }
-
-    .ticker img {
-      height: 50px;
-      margin-right: 20px;
+    .ticker-content {
+      opacity: 0;
+      transition: opacity 1s;
+      position: absolute;
+      width: 100%;
+      left: 0;
+      top: 0;
+    }
+    .ticker-content.show {
+      opacity: 1;
+    }
+    .ticker-logo {
+      max-height: 150px;
+      margin-bottom: 10px;
     }
   </style>
 </head>
 <body>
-  <div class="header">
-    <div class="buttons">
-      <button onclick="setFilter('all')" id="btn-all" class="active">All</button>
-      <button onclick="setFilter('G')" id="btn-G">Garage</button>
-      <button onclick="setFilter('D')" id="btn-D">Driver</button>
-      <button onclick="setFilter('M')" id="btn-M">Media</button>
-    </div>
-  </div>
-
-  <div class="time-container">
+  <div class="top-section">
     <div class="time-box">
-      <h2>Current Time</h2>
-      <p id="current-time">--:--</p>
+      <div class="time-header">Current Time</div>
+      <div id="current-time" class="time-value">--:--</div>
     </div>
     <div class="time-box">
-      <h2>Next Session</h2>
-      <p id="next-title">Loading...</p>
-      <p id="next-countdown">--:--</p>
+      <div id="next-event-title" class="time-header">Next Session: —</div>
+      <div id="next-event-timer" class="event-time">--:--</div>
     </div>
   </div>
 
-  <div class="events-container">
-    <h2>Events</h2>
-    <div id="event-list">Loading events...</div>
+  <div class="main-container">
+    <div class="events-sidebar">
+      <div class="events-header">Events</div>
+      <div class="button-group">
+        <button class="filter-btn active" data-filter="ALL">All</button>
+        <button class="filter-btn" data-filter="G">Garage</button>
+        <button class="filter-btn" data-filter="D">Driver</button>
+        <button class="filter-btn" data-filter="M">Media</button>
+      </div>
+      <div id="event-list"></div>
+    </div>
   </div>
 
-  <div class="ticker" id="ticker">
-    <img src="NPS.png" alt="Nexus Logo" id="ticker-logo" />
-    <span id="ticker-text">Nexus Performance Solutions</span>
+  <div class="ticker">
+    <div id="ticker1" class="ticker-content"><img src="NPS.png" class="ticker-logo" alt="Nexus Logo"></div>
+    <div id="ticker2" class="ticker-content">Nexus Performance Solutions</div>
+    <div id="ticker3" class="ticker-content">Connecting Strategy to Peak Motorsport Performance</div>
   </div>
 
   <script>
-     const API_KEY = 'AIzaSyAVtt3Q4Rm-72rjJCTgGSwJvNzgDQ7w6Qs';
+    const API_KEY = 'AIzaSyAVtt3Q4Rm-72rjJCTgGSwJvNzgDQ7w6Qs';
     const CALENDAR_ID = 'd8573d58063057003d14a9ead801d83d0bbacf880d6fee3f9f5615e2eeb0433c@group.calendar.google.com';
     const MAX_EVENTS = 8;
+    let events = [];
+    let currentFilter = 'ALL';
 
-    let currentFilter = 'all';
-
-    function updateTime() {
+    function updateCurrentTime() {
       const now = new Date();
-      const options = { weekday: 'short', hour: '2-digit', minute: '2-digit', second: '2-digit', hour12: false };
-      document.getElementById("current-time").innerText = now.toLocaleString('en-AU', options);
+      document.getElementById("current-time").innerText = now.toLocaleString('en-AU', {
+        weekday: 'short', hour: '2-digit', minute: '2-digit', hour12: false
+      });
     }
-    setInterval(updateTime, 1000);
-    updateTime();
 
-    function setFilter(type) {
-      currentFilter = type;
-      document.querySelectorAll('.buttons button').forEach(btn => btn.classList.remove('active'));
-      document.getElementById(`btn-${type}`).classList.add('active');
-      loadCalendar();
+    function formatEventTime(dateStr) {
+      const date = new Date(dateStr);
+      return date.toLocaleString('en-AU', {
+        weekday: 'short', hour: '2-digit', minute: '2-digit', hour12: false
+      });
     }
 
     function stripTag(title) {
-      const match = title.match(/^[A-Z]\s(.+)/);
-      return match ? match[1] : title;
+      return title.replace(/^[GDM]:\s*/, '').trim();
     }
 
-    function loadCalendar() {
+    function filterAndDisplayEvents() {
+      const now = new Date();
+      const filtered = events.filter(ev => {
+        const title = ev.summary || '';
+        if (currentFilter === 'ALL') return new Date(ev.end.dateTime) > now;
+        return title.startsWith(currentFilter + ':') && new Date(ev.end.dateTime) > now;
+      }).slice(0, MAX_EVENTS);
+
+      const container = document.getElementById('event-list');
+      container.innerHTML = '';
+      filtered.forEach(ev => {
+        const div = document.createElement('div');
+        div.className = 'event';
+        div.innerHTML = `<div class="event-title">${stripTag(ev.summary)}</div>
+                         <div class="event-start">${formatEventTime(ev.start.dateTime)}</div>`;
+        container.appendChild(div);
+      });
+
+      if (filtered.length > 0) updateCountdown(filtered[0]);
+    }
+
+    function updateCountdown(event) {
+      const now = new Date();
+      const start = new Date(event.start.dateTime);
+      const end = new Date(event.end.dateTime);
+      const title = stripTag(event.summary);
+      const label = now < start ? 'Start:' : 'End:';
+      const target = now < start ? start : end;
+
+      document.getElementById("next-event-title").innerText = `Next Session: ${title}`;
+
+      function tick() {
+        const diff = target.getTime() - Date.now();
+        if (diff <= 0) return location.reload();
+        const h = Math.floor(diff / 3600000);
+        const m = Math.floor((diff % 3600000) / 60000);
+        const s = Math.floor((diff % 60000) / 1000);
+        let parts = [];
+        if (h > 0) parts.push(`${h}h`);
+        if (m > 0 || h > 0) parts.push(`${m}m`);
+        parts.push(`${s}s`);
+        document.getElementById("next-event-timer").innerText = `${label} ${parts.join(' ')}`;
+      }
+
+      tick();
+      setInterval(tick, 1000);
+    }
+
+    function startTicker() {
+      let index = 0;
+      const contents = ["ticker1", "ticker2", "ticker3"];
+      setInterval(() => {
+        contents.forEach(id => document.getElementById(id).classList.remove('show'));
+        index = (index + 1) % contents.length;
+        document.getElementById(contents[index]).classList.add('show');
+      }, 4000);
+    }
+
+    gapi.load('client', () => {
       gapi.client.init({ apiKey: API_KEY }).then(() => {
         return gapi.client.request({
           path: `https://www.googleapis.com/calendar/v3/calendars/${encodeURIComponent(CALENDAR_ID)}/events`,
@@ -197,101 +251,24 @@
           }
         });
       }).then(response => {
-        const events = response.result.items || [];
-        const container = document.getElementById("event-list");
-        container.innerHTML = '';
-
-        const filtered = events.filter(ev => {
-          if (currentFilter === 'all') return true;
-          return ev.summary && ev.summary.startsWith(currentFilter);
-        }).slice(0, MAX_EVENTS);
-
-        if (filtered.length === 0) {
-          container.innerHTML = '<p>No upcoming events.</p>';
-          return;
-        }
-
-        filtered.forEach((event, index) => {
-          const startRaw = event.start.dateTime || event.start.date;
-          const start = new Date(startRaw);
-          const startTimeStr = start.toLocaleString('en-AU', { weekday: 'short', hour: '2-digit', minute: '2-digit', hour12: false });
-          const div = document.createElement('div');
-          div.className = 'event';
-          div.innerHTML = `<div class="event-title">${stripTag(event.summary || '(No title)')}</div><div class="event-time">${startTimeStr}</div>`;
-          container.appendChild(div);
-
-          if (index === 0) startCountdown(event);
-        });
+        events = response.result.items || [];
+        filterAndDisplayEvents();
       });
-    }
+    });
 
-    function startCountdown(event) {
-      const titleEl = document.getElementById("next-title");
-      const countdownEl = document.getElementById("next-countdown");
+    setInterval(updateCurrentTime, 1000);
+    updateCurrentTime();
+    startTicker();
 
-      const now = new Date();
-      const start = new Date(event.start.dateTime || event.start.date);
-      const end = new Date(event.end.dateTime || event.end.date);
-
-      let mode = 'start';
-      if (now > start && now < end) mode = 'end';
-
-      function update() {
-        const now = new Date();
-        let target = mode === 'start' ? start : end;
-        let distance = target - now;
-
-        if (distance <= 0 && mode === 'start') {
-          mode = 'end';
-          target = end;
-          distance = target - now;
-        } else if (distance <= 0 && mode === 'end') {
-          titleEl.innerText = 'No session';
-          countdownEl.innerText = '';
-          loadCalendar();
-          return;
-        }
-
-        const days = Math.floor(distance / (1000 * 60 * 60 * 24));
-        const hours = Math.floor((distance % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
-        const minutes = Math.floor((distance % (1000 * 60 * 60)) / (1000 * 60));
-        const seconds = Math.floor((distance % (1000 * 60)) / 1000);
-
-        let timeStr = '';
-        if (days) timeStr += `${days}d `;
-        if (hours) timeStr += `${hours}h `;
-        if (minutes) timeStr += `${minutes}m `;
-        timeStr += `${seconds}s`;
-
-        titleEl.innerText = `Next Session: ${stripTag(event.summary || '(No title)')}`;
-        countdownEl.innerText = `${mode.charAt(0).toUpperCase() + mode.slice(1)}: ${timeStr}`;
-      }
-
-      update();
-      setInterval(update, 1000);
-    }
-
-    function tickerCycle() {
-      const logo = document.getElementById("ticker-logo");
-      const text = document.getElementById("ticker-text");
-      const steps = [
-        () => { logo.style.display = 'inline'; text.innerText = ''; },
-        () => { logo.style.display = 'none'; text.innerText = 'Nexus Performance Solutions'; },
-        () => { text.innerText = 'Connecting Strategy to Peak Motorsport Performance'; }
-      ];
-
-      let index = 0;
-      steps[index]();
-
-      setInterval(() => {
-        index = (index + 1) % steps.length;
-        steps[index]();
-      }, 4000);
-    }
-
-    gapi.load('client', loadCalendar);
-    window.onload = tickerCycle;
+    document.querySelectorAll('.filter-btn').forEach(btn => {
+      btn.addEventListener('click', () => {
+        document.querySelectorAll('.filter-btn').forEach(b => b.classList.remove('active'));
+        btn.classList.add('active');
+        currentFilter = btn.dataset.filter;
+        filterAndDisplayEvents();
+      });
+    });
   </script>
-  <script src="https://apis.google.com/js/api.js"></script>
+  <link href="https://fonts.googleapis.com/css2?family=Montserrat&display=swap" rel="stylesheet">
 </body>
 </html>
