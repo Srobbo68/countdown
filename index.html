@@ -2,6 +2,7 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Nexus Countdown</title>
   <script src="https://apis.google.com/js/api.js"></script>
   <style>
@@ -9,243 +10,158 @@
       margin: 0;
       font-family: 'Montserrat', sans-serif;
       background: #f4f4f4;
+      color: #003B70;
       display: flex;
-      flex-direction: column;
+      flex-direction: row;
       height: 100vh;
     }
-
-    .top-section {
+    .main {
+      flex: 1;
       display: flex;
       flex-direction: column;
       align-items: center;
       justify-content: center;
-      padding: 10px;
-    }
-
-    .box {
-      width: 100%;
-      max-width: 1000px;
-      background: white;
-      border-radius: 12px;
       padding: 20px;
-      margin-bottom: 10px;
+    }
+    .time-box {
+      border: 2px solid #003B70;
+      padding: 20px;
+      margin: 10px;
+      width: 90%;
       text-align: center;
-      box-shadow: 0 4px 8px rgba(0,0,0,0.1);
     }
-
-    .title {
+    .heading {
       font-size: 72px;
-      color: #0071bc;
       margin-bottom: 10px;
     }
-
-    .time-text, .event-title, .event-time-label {
-      font-size: 36px;
-      color: #0071bc;
-    }
-
-    .countdown-time {
+    .time-text {
+      font-size: 144px;
       font-family: monospace;
-      font-size: 72px;
-      color: #0071bc;
+      white-space: nowrap;
     }
-
+    .label {
+      font-size: 36px;
+      margin-top: 10px;
+    }
     .sidebar {
+      width: 400px;
       background: white;
-      border-top: 2px solid #ccc;
-      padding: 10px;
+      padding: 20px;
+      border-left: 2px solid #ccc;
       overflow-y: auto;
-      flex: 1;
     }
-
     .sidebar h2 {
-      text-align: center;
       font-size: 72px;
-      margin-bottom: 10px;
-      color: #0071bc;
-    }
-
-    .event {
-      margin-bottom: 15px;
-    }
-
-    .event .event-title {
-      font-size: 26px;
-      color: #0071bc;
-      font-weight: bold;
-    }
-
-    .event .event-time {
-      font-size: 26px;
-      color: #444;
-    }
-
-    .filters {
+      margin: 0 0 20px 0;
       text-align: center;
-      margin-bottom: 10px;
     }
-
-    .filters button {
-      margin: 0 5px;
-      padding: 5px 15px;
-      font-size: 16px;
+    .event {
+      margin-bottom: 20px;
+    }
+    .event-title {
+      font-size: 26px;
+      font-weight: bold;
+      color: #003B70;
+    }
+    .event-time {
+      font-size: 26px;
+    }
+    .filters {
+      display: flex;
+      justify-content: center;
+      margin-bottom: 20px;
+      flex-wrap: wrap;
+    }
+    .filter-button {
+      padding: 10px 20px;
+      margin: 5px;
+      background: #eee;
+      border: 2px solid #003B70;
       cursor: pointer;
-      background: white;
-      border: 2px solid #0071bc;
-      border-radius: 5px;
-      color: #0071bc;
+      font-size: 20px;
     }
-
-    .filters button.active {
-      background: #0071bc;
+    .filter-button.active {
+      background: #003B70;
       color: white;
     }
-
     .ticker {
-      background: #e0e0e0;
-      color: #0071bc;
+      position: absolute;
+      bottom: 0;
+      width: 100%;
+      background: #ddd;
+      padding: 5px 0;
       overflow: hidden;
       white-space: nowrap;
-      padding: 10px 0;
-      font-size: 24px;
-      position: relative;
     }
-
     .ticker-content {
       display: inline-block;
-      animation: scroll-left 20s linear infinite;
+      animation: ticker 20s linear infinite;
+      font-size: 32px;
     }
-
-    .ticker img {
-      height: 150px;
+    .ticker-content img {
+      max-height: 150px;
       vertical-align: middle;
       margin-right: 30px;
     }
-
-    @keyframes scroll-left {
+    @keyframes ticker {
       0% { transform: translateX(100%); }
       100% { transform: translateX(-100%); }
     }
-
-    @media (max-width: 768px) {
-      .title, .sidebar h2 {
-        font-size: 48px;
+    @media screen and (max-width: 768px) {
+      body {
+        flex-direction: column;
       }
-      .time-text, .event-title, .event-time-label, .event-time {
-        font-size: 24px;
-      }
-      .countdown-time {
-        font-size: 48px;
-      }
-      .ticker img {
-        height: 100px;
+      .sidebar {
+        width: 100%;
+        border-left: none;
+        border-top: 2px solid #ccc;
       }
     }
   </style>
 </head>
 <body>
-  <div class="top-section">
-    <div class="box">
-      <div class="title">Current Time</div>
-      <div id="current-time" class="time-text">Loading…</div>
+  <div class="main">
+    <div class="time-box">
+      <div class="heading">Current Time</div>
+      <div id="current-time" class="time-text">--:--</div>
     </div>
-
-    <div class="box">
-      <div id="next-title" class="event-title">Next Session:</div>
-      <div id="next-label" class="event-time-label"></div>
-      <div id="countdown" class="countdown-time">Loading…</div>
+    <div class="time-box">
+      <div id="next-session-title" class="heading">Next Session: --</div>
+      <div id="countdown" class="time-text">--:--</div>
     </div>
   </div>
-
-  <div class="filters">
-    <button onclick="filterEvents('All')" class="active">All</button>
-    <button onclick="filterEvents('G')">Garage</button>
-    <button onclick="filterEvents('D')">Driver</button>
-    <button onclick="filterEvents('M')">Media</button>
-  </div>
-
   <div class="sidebar">
     <h2>Events</h2>
-    <div id="event-list">Loading…</div>
+    <div class="filters">
+      <button class="filter-button active" data-tag="ALL">All</button>
+      <button class="filter-button" data-tag="G">Garage</button>
+      <button class="filter-button" data-tag="D">Driver</button>
+      <button class="filter-button" data-tag="M">Media</button>
+    </div>
+    <div id="event-list">Loading events…</div>
   </div>
-
   <div class="ticker">
     <div class="ticker-content">
       <img src="NPS.png" alt="Nexus Logo">
       Connecting Strategy to Peak Motorsport Performance
     </div>
   </div>
-
   <script>
     const API_KEY = 'AIzaSyAVtt3Q4Rm-72rjJCTgGSwJvNzgDQ7w6Qs';
     const CALENDAR_ID = 'd8573d58063057003d14a9ead801d83d0bbacf880d6fee3f9f5615e2eeb0433c@group.calendar.google.com';
-    let selectedFilter = 'All';
-    let upcoming = [];
+    const MAX_EVENTS = 20;
+
+    let allEvents = [];
+    let currentTag = 'ALL';
 
     function updateTime() {
       const now = new Date();
       const options = { weekday: 'short', hour: '2-digit', minute: '2-digit', second: '2-digit', hour12: false };
       document.getElementById("current-time").innerText = now.toLocaleString('en-AU', options);
     }
+
     setInterval(updateTime, 1000);
     updateTime();
-
-    function filterEvents(filter) {
-      selectedFilter = filter;
-      document.querySelectorAll('.filters button').forEach(btn => btn.classList.remove('active'));
-      document.querySelector(`.filters button:contains("${filter}")`).classList.add('active');
-      displayEvents();
-    }
-
-    function displayEvents() {
-      const container = document.getElementById("event-list");
-      container.innerHTML = '';
-      let filtered = [...upcoming];
-
-      if (selectedFilter !== 'All') {
-        filtered = filtered.filter(ev => ev.tag === selectedFilter);
-      }
-
-      filtered = filtered.filter(ev => ev.end > new Date());
-
-      filtered.slice(0, 8).forEach(ev => {
-        const div = document.createElement('div');
-        div.className = 'event';
-        div.innerHTML = `<div class="event-title">${ev.title}</div><div class="event-time">${ev.day} ${ev.startTime}</div>`;
-        container.appendChild(div);
-      });
-    }
-
-    function startCountdown(events) {
-      if (events.length === 0) return;
-
-      function update() {
-        const now = new Date();
-        let current = events.find(ev => ev.start <= now && ev.end > now);
-        if (!current) current = events.find(ev => ev.start > now);
-        if (!current) return;
-
-        const timeLabel = now < current.start ? 'Start: ' : 'End: ';
-        const target = now < current.start ? current.start : current.end;
-        const diff = target - now;
-
-        let secs = Math.floor(diff / 1000) % 60;
-        let mins = Math.floor(diff / (1000 * 60)) % 60;
-        let hrs = Math.floor(diff / (1000 * 60 * 60));
-
-        const parts = [];
-        if (hrs > 0) parts.push(`${hrs}h`);
-        if (mins > 0 || hrs > 0) parts.push(`${mins}m`);
-        parts.push(`${secs}s`);
-
-        document.getElementById("next-title").innerText = `Next Session: ${current.title}`;
-        document.getElementById("next-label").innerText = `${timeLabel}${current.startTime}`;
-        document.getElementById("countdown").innerText = parts.join(' ');
-      }
-
-      update();
-      setInterval(update, 1000);
-    }
 
     function loadCalendar() {
       gapi.client.init({ apiKey: API_KEY }).then(() => {
@@ -255,37 +171,82 @@
             singleEvents: true,
             orderBy: 'startTime',
             timeMin: new Date().toISOString(),
-            maxResults: 50
+            maxResults: MAX_EVENTS
           }
         });
       }).then(response => {
-        upcoming = (response.result.items || []).map(item => {
-          const raw = item.summary || '';
-          const match = raw.match(/^(G|D|M)[\s\-\.]+(.*)$/i);
-          const tag = match ? match[1].toUpperCase() : null;
-          const title = match ? match[2].trim() : raw;
-
-          const start = new Date(item.start.dateTime || item.start.date);
-          const end = new Date(item.end.dateTime || item.end.date);
-          const options = { weekday: 'short', hour: '2-digit', minute: '2-digit', hour12: false };
-
-          return {
-            title,
-            tag,
-            start,
-            end,
-            startTime: start.toLocaleTimeString('en-AU', { hour: '2-digit', minute: '2-digit', hour12: false }),
-            day: start.toLocaleDateString('en-AU', { weekday: 'short' })
-          };
-        });
-
-        displayEvents();
-        startCountdown(upcoming);
+        const events = response.result.items || [];
+        allEvents = events;
+        renderEvents();
       });
     }
 
+    function renderEvents() {
+      const list = document.getElementById("event-list");
+      list.innerHTML = '';
+      const now = new Date();
+      const filtered = allEvents.filter(ev => {
+        const title = ev.summary || '';
+        if (!title.match(/^[GDM] /i) && currentTag !== 'ALL') return false;
+        if (currentTag === 'ALL') return true;
+        return title.toUpperCase().startsWith(currentTag + ' ');
+      });
+      const upcoming = filtered.filter(ev => new Date(ev.end.dateTime || ev.end.date) > now).slice(0, 8);
+
+      upcoming.forEach(ev => {
+        const title = ev.summary.replace(/^[GDM] /i, '') || '(No title)';
+        const start = new Date(ev.start.dateTime || ev.start.date);
+        const day = start.toLocaleDateString('en-AU', { weekday: 'short' });
+        const time = start.toLocaleTimeString('en-AU', { hour: '2-digit', minute: '2-digit', hour12: false });
+        const div = document.createElement('div');
+        div.className = 'event';
+        div.innerHTML = `<div class="event-title">${title}</div><div class="event-time">${day} ${time}</div>`;
+        list.appendChild(div);
+      });
+
+      const next = upcoming[0];
+      if (next) {
+        const title = next.summary.replace(/^[GDM] /i, '');
+        const start = new Date(next.start.dateTime || next.start.date);
+        const end = new Date(next.end.dateTime || next.end.date);
+        document.getElementById("next-session-title").innerText = `Next Session: ${title}`;
+        startCountdown(start, end);
+      }
+    }
+
+    function startCountdown(startTime, endTime) {
+      clearInterval(window._countdownTimer);
+      function updateCountdown() {
+        const now = new Date();
+        let target = now < startTime ? startTime : endTime;
+        let diff = target - now;
+        if (diff <= 0) {
+          renderEvents();
+          return;
+        }
+        const h = Math.floor(diff / 3600000);
+        const m = Math.floor((diff % 3600000) / 60000);
+        const s = Math.floor((diff % 60000) / 1000);
+        const parts = [];
+        if (h) parts.push(h + 'h');
+        if (m) parts.push(m + 'm');
+        parts.push(s + 's');
+        document.getElementById("countdown").innerText = `${now < startTime ? 'Start:' : 'End:'} ${parts.join(' ')}`;
+      }
+      updateCountdown();
+      window._countdownTimer = setInterval(updateCountdown, 1000);
+    }
+
+    document.querySelectorAll(".filter-button").forEach(btn => {
+      btn.addEventListener('click', () => {
+        document.querySelectorAll('.filter-button').forEach(b => b.classList.remove('active'));
+        btn.classList.add('active');
+        currentTag = btn.dataset.tag;
+        renderEvents();
+      });
+    });
+
     gapi.load('client', loadCalendar);
   </script>
-  <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;700&display=swap" rel="stylesheet">
 </body>
 </html>
