@@ -12,14 +12,18 @@
       font-family: 'Montserrat', sans-serif;
       background: #f4f4f4;
       overflow: hidden;
+      flex-wrap: nowrap; /* prevent sidebar from wrapping under */
     }
 
-    .main {
-      flex: 1;
-      display: flex;
-      flex-direction: column;
-      justify-content: flex-start;
-      padding: 20px;
+      .main {
+            flex: 0 0 calc(100% - 350px); /* 350px is sidebar width */
+            display: flex;
+            flex-direction: column;
+            justify-content: flex-start;
+            padding: 20px;
+            box-sizing: border-box;
+}
+
     }
 
     .section {
@@ -61,6 +65,7 @@
       padding: 20px;
       overflow-y: auto;
       border-left: 2px solid #ccc;
+      box-sizing: border-box;
     }
 
     .sidebar h2 {
