@@ -12,23 +12,25 @@
       font-family: 'Montserrat', sans-serif;
       background: #f4f4f4;
       overflow: hidden;
-      flex-wrap: nowrap; /* prevent sidebar from wrapping under */
+      flex-wrap: nowrap;
     }
 
-      .main {
-            flex: 0 0 calc(100% - 350px); /* 350px is sidebar width */
-            display: flex;
-            flex-direction: column;
-            justify-content: flex-start;
-            padding: 20px;
-            box-sizing: border-box;
-}
+    .main {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      justify-content: flex-start;
+      padding: 20px;
+      box-sizing: border-box;
+    }
 
+    .section-wrapper {
+      max-width: 600px;
+      margin: 0 auto 20px auto;
+      width: 100%;
     }
 
     .section {
-      flex: none;
-      margin-bottom: 20px;
       background: white;
       padding: 20px;
       border-radius: 12px;
@@ -40,11 +42,14 @@
       font-weight: bold;
       color: #0071BC;
       margin-bottom: 10px;
+      text-align: center;
     }
 
-    .time-text, .countdown-text {
+    .time-text,
+    .countdown-text {
       font-size: 72px;
       color: #0071BC;
+      text-align: center;
       font-variant-numeric: tabular-nums;
     }
 
@@ -52,11 +57,13 @@
       font-size: 36px;
       color: #0071BC;
       font-weight: bold;
+      text-align: center;
     }
 
     .event-time-label {
       font-size: 36px;
       color: #0071BC;
+      text-align: center;
     }
 
     .sidebar {
@@ -111,35 +118,26 @@
       background: #0071BC;
       color: white;
     }
-    .title, .event-info {
-  text-align: center;
-}
-    .time-text,
-.countdown-text {
-  text-align: center;
-}
-    .event-time-label {
-  text-align: center;
-}
   </style>
 </head>
 <body>
   <div class="main">
-    <div class="section">
-      <div class="title">Current Time</div>
-      <div id="current-time" class="time-text">--:--:--</div>
+    <div class="section-wrapper">
+      <div class="section">
+        <div class="title">Current Time</div>
+        <div id="current-time" class="time-text">--:--:--</div>
+      </div>
     </div>
 
-    <div class="section">
-      <div class="event-info" id="event-title">Next Session: --</div>
-     <div class="countdown-text">
-  <span id="countdown-label">Start</span>
-  <span id="countdown">--:--:--</span>
-</div>
-
-
-</div>
-
+    <div class="section-wrapper">
+      <div class="section">
+        <div class="event-info" id="event-title">Next Session: --</div>
+        <div class="countdown-text">
+          <span id="countdown-label">Start</span>
+          <span id="countdown">--:--:--</span>
+        </div>
+      </div>
+    </div>
   </div>
 
   <div class="sidebar">
@@ -152,6 +150,8 @@
     </div>
     <div id="event-list">Loading events...</div>
   </div>
+</body>
+</html>
 
   <script>
     const API_KEY = 'AIzaSyAVtt3Q4Rm-72rjJCTgGSwJvNzgDQ7w6Qs';
