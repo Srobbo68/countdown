@@ -15,20 +15,22 @@
       flex-wrap: nowrap;
     }
 
-    .main {
-      flex: 1;
-      display: flex;
-      flex-direction: column;
-      justify-content: flex-start;
-      padding: 20px;
-      box-sizing: border-box;
-    }
+  .main {
+  flex: 0 0 calc(100% - 350px); /* sidebar is 350px wide */
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-start;
+  padding: 20px;
+  box-sizing: border-box;
+}
 
-    .section-wrapper {
-      max-width: 600px;
-      margin: 0 auto 20px auto;
-      width: 100%;
-    }
+
+   .section-wrapper {
+  width: 100%;
+  margin: 0 0 20px 0;
+  box-sizing: border-box;
+}
+
 
     .section {
       background: white;
