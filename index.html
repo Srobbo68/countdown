@@ -204,8 +204,16 @@
     const CALENDAR_ID = 'd8573d58063057003d14a9ead801d83d0bbacf880d6fee3f9f5615e2eeb0433c@group.calendar.google.com';
     let events = [];
     let currentFilter = 'all';
-
- 
+    // Restore saved filter from localStorage
+  const savedFilter = localStorage.getItem('filter');
+  if (savedFilter) {
+    currentFilter = savedFilter;
+    // Wait for DOM content to load before applying the button class
+    window.addEventListener('DOMContentLoaded', () => {
+      const button = document.querySelector(`.filter-button[onclick*="${savedFilter}"]`);
+      if (button) filterEvents(savedFilter, button);
+    });
+  }
   const messages = [
     `<img src="NPS.png" alt="Nexus Logo" class="ticker-logo" /><span class="ticker-text">Nexus Performance Solutions</span>`,
     `<span class="ticker-text">Connecting Strategy to Peak Motorsport Performance</span>`,
