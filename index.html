@@ -120,6 +120,59 @@
       background: #0071BC;
       color: white;
     }
+    .ticker-wrapper {
+  position: fixed;
+  bottom: 0;
+  width: 100%;
+  background: #e0e0e0; /* light grey background */
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  height: 60px;
+  z-index: 100;
+  overflow: hidden;
+}
+
+.ticker-content {
+  display: flex;
+  align-items: center;
+  gap: 20px;
+  font-size: 24px;
+  color: #0071BC;
+  font-weight: bold;
+  opacity: 0;
+  animation: tickerFade 18s linear infinite;
+}
+
+.ticker-logo {
+  height: 40px;
+  max-height: 100%;
+}
+
+@keyframes tickerFade {
+  0%, 8% {
+    opacity: 1;
+    content: "Nexus Performance Solutions";
+  }
+  33%, 41% {
+    opacity: 0;
+  }
+  42%, 50% {
+    opacity: 1;
+    content: "Connecting Strategy to Peak Motorsport Performance";
+  }
+  75%, 83% {
+    opacity: 0;
+  }
+  84%, 92% {
+    opacity: 1;
+    content: "We bring together your team, your workflows and your data—so every race-weekend counts.";
+  }
+  100% {
+    opacity: 0;
+  }
+}
+
   </style>
 </head>
 <body>
@@ -148,6 +201,31 @@
     </div>
     <div id="event-list">Loading events...</div>
   </div>
+  <div class="ticker-wrapper">
+  <div class="ticker-content" id="ticker-content">
+    <img src="NPS.png" alt="Nexus Logo" class="ticker-logo" />
+    <span class="ticker-text">Nexus Performance Solutions</span>
+  </div>
+</div>
+  <script>
+  const messages = [
+    `<img src="NPS.png" alt="Nexus Logo" class="ticker-logo" /><span class="ticker-text">Nexus Performance Solutions</span>`,
+    `<span class="ticker-text">Connecting Strategy to Peak Motorsport Performance</span>`,
+    `<span class="ticker-text">We bring together your team, your workflows and your data—so every race-weekend counts.</span>`
+  ];
+
+  let index = 0;
+  const ticker = document.getElementById("ticker-content");
+
+  function updateTicker() {
+    ticker.innerHTML = messages[index];
+    index = (index + 1) % messages.length;
+  }
+
+  updateTicker(); // Initial call
+  setInterval(updateTicker, 6000); // Change every 6 seconds
+</script>
+
 </body>
 </html>
 
