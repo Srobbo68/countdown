@@ -141,19 +141,22 @@
       font-size: 24px;
       color: #0071BC;
       font-weight: bold;
-      opacity: 1;
-      transition: opacity 1s ease-in-out;
+      opacity: 0;
+      animation: tickerFade 18s linear infinite;
     }
-    .ticker-text {
-  text-align: center;
-  width: 100%;
-  display: block;
-}
-
 
     .ticker-logo {
       height: 150px;
       max-height: 100%;
+    }
+
+    @keyframes tickerFade {
+      0%, 8% { opacity: 1; }
+      33%, 41% { opacity: 0; }
+      42%, 50% { opacity: 1; }
+      75%, 83% { opacity: 0; }
+      84%, 92% { opacity: 1; }
+      100% { opacity: 0; }
     }
   </style>
 </head>
@@ -203,16 +206,12 @@
       `<span class="ticker-text">We bring together your team, your workflows and your data—so every race-weekend counts.</span>`
     ];
 
-    let tickerIndex = 0;
+    let index = 0;
     const ticker = document.getElementById("ticker-content");
 
     function updateTicker() {
-      ticker.style.opacity = 0;
-      setTimeout(() => {
-        ticker.innerHTML = messages[tickerIndex];
-        ticker.style.opacity = 1;
-        tickerIndex = (tickerIndex + 1) % messages.length;
-      }, 500);
+      ticker.innerHTML = messages[index];
+      index = (index + 1) % messages.length;
     }
 
     updateTicker();
@@ -227,52 +226,44 @@
     updateTime();
 
     function filterEvents(tag, button) {
-  currentFilter = tag;
-  localStorage.setItem('selectedFilter', tag);  // ← Save the filter
+      currentFilter = tag;
+      localStorage.setItem('filter', tag);
+      document.querySelectorAll('.filter-button').forEach(btn => btn.classList.remove('active'));
+      button.classList.add('active');
+      renderEvents();
+      updateNextEvent();
+    }
 
-  document.querySelectorAll('.filter-button').forEach(btn => btn.classList.remove('active'));
-  button.classList.add('active');
-
-  renderEvents();
-  updateNextEvent();
-}
-
-
-   function loadCalendar() {
-  gapi.client.init({ apiKey: API_KEY }).then(() => {
-    return gapi.client.request({
-      path: `https://www.googleapis.com/calendar/v3/calendars/${encodeURIComponent(CALENDAR_ID)}/events`,
-      params: {
-        singleEvents: true,
-        orderBy: 'startTime',
-        timeMin: new Date().toISOString(),
-        maxResults: 20
-      }
-    });
-  }).then(response => {
-    events = response.result.items.map(ev => {
-      let tag = '', summary = ev.summary;
-      const match = summary.match(/^([GDM])\s+(.*)/);
-      if (match) {
-        tag = match[1];
-        summary = match[2];
-      }
-      return {
-        tag,
-        summary,
-        start: new Date(ev.start.dateTime || ev.start.date),
-        end: new Date(ev.end.dateTime || ev.end.date)
-      };
-    });
-
-    // 🔁 Restore filter from localStorage
-    const saved = localStorage.getItem('selectedFilter') || 'all';
-    const btn = document.querySelector(`.filter-button[onclick*="${saved}"]`);
-    if (btn) filterEvents(saved, btn);
-    else filterEvents('all', document.querySelector('.filter-button.active'));
-  });
-}
-
+    function loadCalendar() {
+      gapi.client.init({ apiKey: API_KEY }).then(() => {
+        return gapi.client.request({
+          path: `https://www.googleapis.com/calendar/v3/calendars/${encodeURIComponent(CALENDAR_ID)}/events`,
+          params: {
+            singleEvents: true,
+            orderBy: 'startTime',
+            timeMin: new Date().toISOString(),
+            maxResults: 20
+          }
+        });
+      }).then(response => {
+        events = response.result.items.map(ev => {
+          let tag = '', summary = ev.summary;
+          const match = summary.match(/^([GDM])\s+(.*)/);
+          if (match) {
+            tag = match[1];
+            summary = match[2];
+          }
+          return {
+            tag,
+            summary,
+            start: new Date(ev.start.dateTime || ev.start.date),
+            end: new Date(ev.end.dateTime || ev.end.date)
+          };
+        });
+        renderEvents();
+        updateNextEvent();
+      });
+    }
 
     function renderEvents() {
       const container = document.getElementById("event-list");
@@ -321,7 +312,17 @@
       window._countdownTimer = setInterval(update, 1000);
     }
 
-    gapi.load('client', loadCalendar);
+    gapi.load('client', () => {
+      const saved = localStorage.getItem('filter');
+      const btn = document.querySelector(`.filter-button[onclick*="${saved}"]`);
+      if (saved && btn) filterEvents(saved, btn);
+      else filterEvents('all', document.querySelector('.filter-button.active'));
+    });
+
+    // Refresh calendar every 30 seconds
+    setInterval(() => {
+      loadCalendar();
+    }, 30000);
   </script>
 </body>
 </html>
