@@ -24,6 +24,7 @@
       justify-content: flex-start;
       padding: 20px;
       box-sizing: border-box;
+      padding-bottom: clamp(60px, 10vh, 150px); /* Match the ticker height */
     }
 
     .section {
@@ -126,7 +127,7 @@
   bottom: 0;
   width: 100%;
   background: #e0e0e0;
-  height: clamp(60px,8vh,120px);
+  height: clamp(60px,10vh,150px);
   display: flex;
   justify-content: center;
   align-items: center;
@@ -140,7 +141,7 @@
   align-items: center;
   justify-content: center;
   gap: 20px;
-  font-size: clamp(16px, 2vw, 24px);
+  font-size: clamp(16px, 2vw, 28px);
   color: #0071BC;
   font-weight: bold;
   opacity: 0;
