@@ -4,152 +4,136 @@
   <meta charset="UTF-8" />
   <title>Nexus Countdown</title>
   <script src="https://apis.google.com/js/api.js"></script>
+  <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;700&display=swap" rel="stylesheet">
   <style>
-  body {
-  display: flex;
-  flex-direction: row;
-  margin: 0;
-  font-family: 'Montserrat', sans-serif;
-  background: #f4f4f4;
-  overflow: hidden;
-  flex-wrap: nowrap;
-}
+    body {
+      display: flex;
+      flex-direction: row;
+      margin: 0;
+      font-family: 'Montserrat', sans-serif;
+      background: #f4f4f4;
+      overflow: hidden;
+      flex-wrap: nowrap;
+      height: 100vh;
+    }
 
-.main {
-  flex: 0 0 calc(100% - 350px);
-  display: flex;
-  flex-direction: column;
-  justify-content: flex-start;
-  padding: 2vw;
-  box-sizing: border-box;
-}
+    .main {
+      flex: 0 0 calc(100% - 350px);
+      display: flex;
+      flex-direction: column;
+      justify-content: flex-start;
+      padding: 20px;
+      box-sizing: border-box;
+    }
 
-.section-wrapper {
-  width: 100%;
-  max-width: 100%;
-}
+    .section {
+      height: 30vh;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      align-items: center;
+      margin-bottom: 20px;
+      background: white;
+      padding: 20px;
+      border-radius: 12px;
+      box-shadow: 0 2px 6px rgba(0,0,0,0.1);
+      box-sizing: border-box;
+    }
 
-.section {
-  min-height: 25vh;
-  margin-bottom: 2vh;
-  background: white;
-  padding: 2vh 2vw;
-  border-radius: 12px;
-  box-shadow: 0 2px 6px rgba(0,0,0,0.1);
-}
+    .title {
+      font-size: clamp(24px, 4vw, 48px);
+      font-weight: bold;
+      color: #0071BC;
+      margin-bottom: 10px;
+      text-align: center;
+    }
 
-.title {
-  font-size: 3vw;
-  font-weight: bold;
-  color: #0071BC;
-  margin-bottom: 1vh;
-  text-align: center;
-}
+    .time-text,
+    .countdown-text {
+      font-size: clamp(36px, 6vw, 72px);
+      color: #0071BC;
+      font-variant-numeric: tabular-nums;
+      text-align: center;
+    }
 
-.time-text,
-.countdown-text {
-  font-size: 6vw;
-  color: #0071BC;
-  font-variant-numeric: tabular-nums;
-  text-align: center;
-}
+    .event-info {
+      font-size: clamp(24px, 4vw, 36px);
+      color: #0071BC;
+      font-weight: bold;
+      text-align: center;
+    }
 
-.event-info {
-  font-size: 3vw;
-  color: #0071BC;
-  font-weight: bold;
-  text-align: center;
-}
+    .countdown-text span {
+      display: inline-block;
+      margin: 0 6px;
+    }
 
-.event-time-label {
-  font-size: 2.5vw;
-  color: #0071BC;
-  text-align: center;
-}
+    .sidebar {
+      width: 350px;
+      background: white;
+      padding: 20px;
+      overflow-y: auto;
+      border-left: 2px solid #ccc;
+      box-sizing: border-box;
+    }
 
-.sidebar {
-  width: 350px;
-  background: white;
-  padding: 20px;
-  overflow-y: auto;
-  border-left: 2px solid #ccc;
-  box-sizing: border-box;
-}
+    .sidebar h2 {
+      font-size: 36px;
+      color: #0071BC;
+      margin-bottom: 10px;
+    }
 
-.sidebar h2 {
-  font-size: 2.2vw;
-  color: #0071BC;
-  margin-bottom: 10px;
-  text-align: center;
-}
+    .event {
+      margin-bottom: 15px;
+    }
 
-.event {
-  margin-bottom: 15px;
-}
+    .event-title {
+      font-size: 26px;
+      color: #0071BC;
+      font-weight: bold;
+    }
 
-.event-title {
-  font-size: 1.8vw;
-  color: #0071BC;
-  font-weight: bold;
-}
+    .event-time {
+      font-size: 26px;
+      color: #0071BC;
+    }
 
-.event-time {
-  font-size: 1.8vw;
-  color: #0071BC;
-}
+    .filters {
+      display: flex;
+      gap: 10px;
+      margin-bottom: 20px;
+    }
 
-.filters {
-  display: flex;
-  gap: 10px;
-  margin-bottom: 20px;
-}
+    .filter-button {
+      flex: 1;
+      padding: 10px;
+      font-size: 16px;
+      font-weight: bold;
+      cursor: pointer;
+      background: #eee;
+      border: 2px solid #0071BC;
+      color: #0071BC;
+      border-radius: 6px;
+    }
 
-.filter-button {
-  flex: 1;
-  padding: 10px;
-  font-size: 1.1vw;
-  font-weight: bold;
-  cursor: pointer;
-  background: #eee;
-  border: 2px solid #0071BC;
-  color: #0071BC;
-  border-radius: 6px;
-}
-
-.filter-button.active {
-  background: #0071BC;
-  color: white;
-}
-
-/* Optional: fallback for large desktop screens */
-@media (min-width: 1200px) {
-  .title { font-size: 36px; }
-  .time-text, .countdown-text { font-size: 72px; }
-  .event-info { font-size: 36px; }
-  .event-time-label { font-size: 32px; }
-  .sidebar h2 { font-size: 36px; }
-  .event-title, .event-time { font-size: 26px; }
-  .filter-button { font-size: 16px; }
-}
-
+    .filter-button.active {
+      background: #0071BC;
+      color: white;
+    }
   </style>
 </head>
 <body>
   <div class="main">
-    <div class="section-wrapper">
-      <div class="section">
-        <div class="title">Current Time</div>
-        <div id="current-time" class="time-text">--:--:--</div>
-      </div>
+    <div class="section">
+      <div class="title">Current Time</div>
+      <div id="current-time" class="time-text">--:--:--</div>
     </div>
 
-    <div class="section-wrapper">
-      <div class="section">
-        <div class="event-info" id="event-title">Next Session: --</div>
-        <div class="countdown-text">
-          <span id="countdown-label">Start</span>
-          <span id="countdown">--:--:--</span>
-        </div>
+    <div class="section">
+      <div class="event-info" id="event-title">Next Session: --</div>
+      <div class="countdown-text">
+        <span id="countdown-label">Start</span>
+        <span id="countdown">--:--:--</span>
       </div>
     </div>
   </div>
@@ -166,6 +150,7 @@
   </div>
 </body>
 </html>
+
 
   <script>
     const API_KEY = 'AIzaSyAVtt3Q4Rm-72rjJCTgGSwJvNzgDQ7w6Qs';
