@@ -122,32 +122,36 @@
     }
 
     .ticker-wrapper {
-      position: fixed;
-      bottom: 0;
-      width: 100%;
-      background: #e0e0e0;
-      display: flex;
-      justify-content: center;
-      align-items: center;
-      height: 60px;
-      z-index: 100;
-      overflow: hidden;
-    }
+  position: fixed;
+  bottom: 0;
+  width: 100%;
+  background: #e0e0e0;
+  height: 60px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  overflow: hidden;
+  z-index: 100;
+}
 
-    .ticker-content {
-      display: flex;
-      align-items: center;
-      gap: 20px;
-      font-size: 24px;
-      color: #0071BC;
-      font-weight: bold;
-      opacity: 0;
-      animation: tickerFade 18s linear infinite;
-    }
+.ticker-content {
+  text-align: center;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 20px;
+  font-size: clamp(16px, 2vw, 24px);
+  color: #0071BC;
+  font-weight: bold;
+  opacity: 0;
+  transition: opacity 1s ease;
+}
 
-    .ticker-logo {
-      height: 150px;
-      max-height: 100%;
+.ticker-logo {
+  height: 40px;
+  max-height: 100%;
+}
+
     }
 
     @keyframes tickerFade {
@@ -200,22 +204,29 @@
     let events = [];
     let currentFilter = 'all';
 
-    const messages = [
-      `<img src="NPS.png" alt="Nexus Logo" class="ticker-logo" /><span class="ticker-text">Nexus Performance Solutions</span>`,
-      `<span class="ticker-text">Connecting Strategy to Peak Motorsport Performance</span>`,
-      `<span class="ticker-text">We bring together your team, your workflows and your data—so every race-weekend counts.</span>`
-    ];
+   <script>
+  const messages = [
+    `<img src="NPS.png" alt="Nexus Logo" class="ticker-logo" /><span class="ticker-text">Nexus Performance Solutions</span>`,
+    `<span class="ticker-text">Connecting Strategy to Peak Motorsport Performance</span>`,
+    `<span class="ticker-text">We bring together your team, your workflows and your data—so every race-weekend counts.</span>`
+  ];
 
-    let index = 0;
-    const ticker = document.getElementById("ticker-content");
+  let index = 0;
+  const ticker = document.getElementById("ticker-content");
 
-    function updateTicker() {
+  function updateTicker() {
+    ticker.style.opacity = 0;
+
+    setTimeout(() => {
       ticker.innerHTML = messages[index];
+      ticker.style.opacity = 1;
       index = (index + 1) % messages.length;
-    }
+    }, 500); // slight delay to allow fade out
+  }
 
-    updateTicker();
-    setInterval(updateTicker, 6000);
+  updateTicker();
+  setInterval(updateTicker, 6000);
+</script>
 
     function updateTime() {
       const now = new Date();
