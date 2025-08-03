@@ -312,17 +312,13 @@
       window._countdownTimer = setInterval(update, 1000);
     }
 
-    gapi.load('client', () => {
-      const saved = localStorage.getItem('filter');
-      const btn = document.querySelector(`.filter-button[onclick*="${saved}"]`);
-      if (saved && btn) filterEvents(saved, btn);
-      else filterEvents('all', document.querySelector('.filter-button.active'));
-    });
+   gapi.load('client', () => {
+  gapi.client.init({ apiKey: API_KEY }).then(() => {
+    loadCalendar();                      // Initial fetch
+    setInterval(loadCalendar, 30000);    // Auto-refresh every 30s
+  });
+});
 
-    // Refresh calendar every 30 seconds
-    setInterval(() => {
-      loadCalendar();
-    }, 30000);
   </script>
 </body>
 </html>
