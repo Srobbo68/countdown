@@ -126,7 +126,7 @@
   bottom: 0;
   width: 100%;
   background: #e0e0e0;
-  height: 60px;
+  height: clamp(60px,8vh,120px);
   display: flex;
   justify-content: center;
   align-items: center;
@@ -148,7 +148,7 @@
 }
 
 .ticker-logo {
-  height: 150px;
+  height: clamp(40px,10vh,150px);
   max-height: 100%;
 }
 
