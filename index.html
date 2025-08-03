@@ -321,6 +321,14 @@
     }
 
     gapi.load('client', loadCalendar);
-  </script>
+<script>
+  // ... your existing calendar and ticker scripts ...
+
+  // Auto-refresh every 30 seconds
+  setTimeout(() => {
+    location.reload();
+  }, 30000);
+</script>
 </body>
 </html>
+
