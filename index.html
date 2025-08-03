@@ -315,7 +315,7 @@
    gapi.load('client', () => {
   gapi.client.init({ apiKey: API_KEY }).then(() => {
     loadCalendar();                      // Initial fetch
-    setInterval(loadCalendar, 30000);    // Auto-refresh every 30s
+    setInterval(loadCalendar, 15000);    // Auto-refresh every 15s
   });
 });
 
