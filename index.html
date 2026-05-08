@@ -290,7 +290,7 @@
       container.innerHTML = '';
       const now = new Date();
       const filtered = events.filter(ev => (currentFilter === 'all' || ev.tag === currentFilter) && ev.end > now);
-      filtered.slice(0, 8).forEach(ev => {
+      filtered.slice(0, 9).forEach(ev => {
         const day = ev.start.toLocaleString('en-AU', { weekday: 'short', hour: '2-digit', minute: '2-digit', hour12: false });
         container.innerHTML += `<div class="event"><div class="event-title">${ev.summary}</div><div class="event-time">${day}</div></div>`;
       });
